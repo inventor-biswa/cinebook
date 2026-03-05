@@ -316,3 +316,29 @@ User visits /movies
 ---
 
 *Document maintained by the CineBook project. Each section will be filled in as the code is built.*
+
+---
+
+## Build Log
+
+### ✅ CHUNK 1 — Completed
+
+**Packages installed:**
+```bash
+npm install react-router-dom axios react-hot-toast
+# Added 30 packages. 0 vulnerabilities.
+```
+
+**Files created:**
+
+| File | Purpose |
+|------|---------|
+| `src/api/axios.js` | Axios instance — auto-attaches JWT token to every request |
+| `src/context/AuthContext.jsx` | Global user login state + `login()` / `logout()` |
+| `src/context/CityContext.jsx` | Global city selector state + persists to localStorage |
+| `src/components/PrivateRoute.jsx` | Redirects to `/login` if user not authenticated |
+| `src/components/AdminRoute.jsx` | Redirects if user is not an admin |
+| `src/App.jsx` | Complete router wiring all 14 pages |
+| `frontend/.env` | Environment variables (API URL + Razorpay key) |
+| `src/pages/*.jsx` | Placeholder stubs for all 11 public/protected pages |
+| `src/pages/admin/*.jsx` | Placeholder stubs for all 5 admin pages |
