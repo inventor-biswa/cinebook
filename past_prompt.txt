@@ -1,0 +1,34 @@
+we are doing a project .
+the flow is 
+
+flow_v1.md
+
+
+i will be going in structured manner . 
+
+like every small seteps will be implemented and the command that used to run will be saved in a .md file for future use like document every error or implementation like append it here and add comment why 
+
+setup_command.md
+
+
+after each step we can move to the next.
+after i get satisfied with the first setup then i will ask you to move to the same .
+
+lets first discuss no implementaiotn
+
+
+
+## 12. Phase 1: Backend — routes/events.js + server.js wired
+
+```js
+router.get('/',    getAllEvents);  // GET /api/events?city_id=1
+router.get('/:id', getEventById); // GET /api/events/:id
+
+
+
+### server.js updated:
+```js
+const eventsRoutes = require('./routes/events');
+app.use('/api/events', eventsRoutes);
+
+
