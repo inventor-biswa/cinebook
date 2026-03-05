@@ -1,0 +1,77 @@
+🎬 CineBook — MCA Final Year Project Plan
+
+1. Project Overview
+Tech Stack: React | Node.js + Express | MySQL (XAMPP) | Razorpay (Test Mode)
+CineBook is a multi-city movie & event booking platform with two user roles — a regular user who books tickets, and an admin who manages all content.
+
+2. User Roles
+RoleWhat they can doGuestBrowse movies/events, watch trailers. Cannot book.Registered UserLogin, select seats, pay, view booking historyAdminAdd/edit/delete movies, events, theatres, showtimes + view revenue reports
+
+3. Full Booking Flow
+Home Page (Select City)
+    ↓
+Movie / Event Detail Page
+  → Poster, Description, Cast
+  → YouTube Trailer (embedded iframe)
+  → Available Showtimes (filtered by selected city)
+    ↓
+Seat Selection Page
+  → Visual grid (A1, A2... rows & columns)
+  → Green = Available | Red = Booked | Yellow = Your selection
+    ↓
+Order Summary (seats + price + convenience fee)
+    ↓
+Razorpay Payment (Test Mode)
+    ↓
+Booking Confirmation + E-Ticket
+
+4. Admin Flow
+Admin Login
+    ↓
+Admin Dashboard
+  ├── Movies → Add / Edit / Delete / Assign city + theatre + date
+  ├── Events → Same as movies
+  ├── Theatres → Add / configure rows & columns
+  └── Reports → Bookings, Revenue, City-wise stats
+When admin adds a movie, they fill in title, genre, language, poster, trailer YouTube URL, description, cast, and then assign it to one or more cities + theatres + dates + showtimes + price. They can edit all of this later.
+
+5. Database Design (MySQL)
+Tables: users, cities, theatres, movies, events, shows (links movie/event + theatre + date/time + price), seats (auto-generated per show), bookings, booking_seats
+Key relationships:
+
+A show connects a movie or event to a theatre, on a specific date & time
+Seats are seeded into the seats table when a show is created (e.g. A1–H10 for 8×10 theatre)
+A booking links a user to a show, with a Razorpay payment ID
+
+
+6. API Structure (Express)
+Public: get cities, get movies/events by city, get show details, get seat map for a show, get trending
+User (JWT protected): create booking, verify payment, view my bookings
+Admin (JWT + admin role): full CRUD for movies, events, theatres, shows + reports endpoint
+
+7. Frontend Structure (React)
+Pages: Home, MovieDetail, EventDetail, SeatSelection, Checkout, BookingConfirmation, MyBookings, Login, Register, and Admin pages (Dashboard, ManageMovies, ManageEvents, ManageTheatres, ManageShows)
+Context: AuthContext (JWT + user), CityContext (selected city persisted in localStorage)
+
+8. Razorpay Test Payment Flow
+
+User clicks Pay → backend creates a Razorpay order
+Razorpay popup opens (test card: 4111 1111 1111 1111)
+On success, frontend sends payment IDs to backend for signature verification
+Backend verifies → marks seats as booked (using DB transaction to prevent double booking) → returns booking confirmation
+
+
+9. Trending Section
+Admin simply toggles an is_trending boolean on any movie or event. The home page fetches all trending items and shows them in a highlighted carousel/banner.
+
+10. Development Phases
+PhaseScopeTimeline1Setup, Auth, DB schema, basic APIsWeek 1–22Home page, Movie/Event detail, Trailer, ShowsWeek 3–43Seat map, Booking engine, Razorpay integrationWeek 5–64Admin panel (CRUD + reports)Week 7–85Polish, testing, documentationWeek 9–10
+
+11. Key Technical Decisions
+
+Auth: JWT with bcrypt password hashing
+DB Driver: mysql2 (supports async/await with Node)
+Trailers: YouTube embed via iframe (no video storage needed)
+Seat locking: MySQL transactions to prevent double booking race conditions
+State: React Context API (no need for Redux at this scale)
+Styling: Tailwind CSS or Bootstrap recommended for speed
