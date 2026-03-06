@@ -1,0 +1,131 @@
+/* ─── BOOKING CONFIRM ─────────────────────────────────────────────────────────── */
+.booking-confirm {
+    max-width: 600px;
+}
+
+.booking-confirm__card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.booking-confirm__section h3 {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: var(--space-md);
+}
+
+.booking-confirm__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+}
+
+.booking-confirm__row span:first-child {
+    color: var(--text-secondary);
+}
+
+.booking-confirm__row span:last-child {
+    font-weight: 500;
+}
+
+.booking-confirm__row--total {
+    border-bottom: none;
+    margin-top: var(--space-sm);
+    padding-top: var(--space-md);
+}
+
+.booking-confirm__total {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--gold) !important;
+}
+
+.booking-confirm__seats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: var(--space-md);
+}
+
+.booking-confirm .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.booking-confirm__note {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+/* ── SUCCESS SCREEN ─────────────────────────────────────────────────────────── */
+.booking-success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: var(--space-2xl) var(--space-lg);
+    min-height: 70vh;
+    justify-content: center;
+    gap: var(--space-lg);
+}
+
+.booking-success__icon {
+    font-size: 5rem;
+    animation: bounce 0.6s ease;
+}
+
+@keyframes bounce {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    60% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.booking-success h1 {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    letter-spacing: 3px;
+    color: var(--text-primary);
+}
+
+.booking-success p {
+    color: var(--text-secondary);
+    max-width: 380px;
+}
+
+.booking-success__seats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
+
+.booking-success__actions {
+    display: flex;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: var(--space-md);
+}

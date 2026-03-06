@@ -1,0 +1,49 @@
+/* ─── LISTING PAGES (AllMovies / AllEvents) ──────────────────────────────────── */
+.listing__filters {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+}
+
+.listing__search {
+    max-width: 400px;
+    width: 100%;
+}
+
+.listing__genre-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+.listing__pill {
+    padding: 6px 16px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.listing__pill:hover {
+    border-color: var(--accent);
+    color: var(--text-primary);
+}
+
+.listing__pill--active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+.listing__empty {
+    text-align: center;
+    padding: var(--space-2xl);
+    color: var(--text-muted);
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    border: 1px dashed var(--border);
+}

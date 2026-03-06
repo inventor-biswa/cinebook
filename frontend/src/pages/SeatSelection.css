@@ -1,0 +1,212 @@
+/* ─── SEAT SELECTION ──────────────────────────────────────────────────────────── */
+
+.seat__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-xl);
+    flex-wrap: wrap;
+    gap: var(--space-md);
+}
+
+.seat__title {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+}
+
+.seat__subtitle {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-top: 4px;
+}
+
+/* Screen indicator */
+.seat__screen {
+    text-align: center;
+    margin-bottom: var(--space-xl);
+}
+
+.seat__screen-bar {
+    height: 6px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    border-radius: 50%;
+    margin: 0 auto var(--space-sm);
+    max-width: 600px;
+    box-shadow: 0 4px 24px rgba(229, 9, 20, 0.4);
+}
+
+.seat__screen p {
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+/* Legend */
+.seat__legend {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-xl);
+    margin-bottom: var(--space-xl);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.seat__legend span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.seat-demo {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+}
+
+.seat-demo--available {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+}
+
+.seat-demo--selected {
+    background: var(--accent);
+}
+
+.seat-demo--booked {
+    background: var(--bg-card);
+    opacity: 0.4;
+    border: 1px dashed var(--text-muted);
+}
+
+/* Grid */
+.seat-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 120px;
+    /* space for sticky bar */
+}
+
+.seat-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.seat-row__label {
+    width: 24px;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+/* Individual seat */
+.seat {
+    width: 38px;
+    height: 38px;
+    border-radius: 6px 6px 4px 4px;
+    border: none;
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+}
+
+.seat--available {
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-strong);
+}
+
+.seat--available:hover {
+    background: rgba(229, 9, 20, 0.2);
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: scale(1.12);
+}
+
+.seat--selected {
+    background: var(--accent);
+    color: #fff;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(229, 9, 20, 0.4);
+}
+
+.seat--booked {
+    background: var(--bg-card);
+    color: var(--text-muted);
+    opacity: 0.35;
+    cursor: not-allowed;
+    border: 1px dashed var(--text-muted);
+}
+
+.seat--placeholder {
+    background: transparent;
+    cursor: default;
+}
+
+/* Sticky Bottom Summary */
+.seat__summary {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(18, 18, 26, 0.96);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border-strong);
+    padding: var(--space-md) var(--space-xl);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 50;
+    gap: var(--space-md);
+}
+
+.seat__summary-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.seat__summary-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.seat__summary-amount {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gold);
+}
+
+.seat__summary .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Skeleton grid */
+.seat-grid-skeleton {
+    display: grid;
+    grid-template-columns: repeat(10, 40px);
+    gap: 8px;
+    justify-content: center;
+}
+
+@media (max-width: 600px) {
+    .seat {
+        width: 30px;
+        height: 30px;
+        font-size: 0.6rem;
+    }
+
+    .seat-row {
+        gap: 5px;
+    }
+}

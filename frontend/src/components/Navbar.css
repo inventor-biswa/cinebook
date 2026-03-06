@@ -1,0 +1,217 @@
+/* ─── NAVBAR ─────────────────────────────────────────────────────────────────── */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    width: 100%;
+    background: rgba(10, 10, 15, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    transition: var(--transition);
+}
+
+.navbar--scrolled {
+    background: rgba(10, 10, 15, 0.97);
+    border-bottom-color: var(--border-strong);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+.navbar__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    height: 64px;
+}
+
+/* Logo */
+.navbar__logo {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    letter-spacing: 2px;
+    color: var(--text-primary);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.navbar__logo span {
+    color: var(--accent);
+}
+
+/* Nav Links */
+.navbar__links {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    flex: 1;
+}
+
+.navbar__links a {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: var(--transition);
+    position: relative;
+    padding-bottom: 2px;
+}
+
+.navbar__links a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.2s ease;
+}
+
+.navbar__links a:hover,
+.navbar__links a.active {
+    color: var(--text-primary);
+}
+
+.navbar__links a:hover::after {
+    width: 100%;
+}
+
+.navbar__admin-link {
+    color: var(--gold) !important;
+}
+
+/* Right side */
+.navbar__right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-left: auto;
+}
+
+/* City Selector */
+.navbar__city {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+}
+
+.navbar__city-icon {
+    font-size: 0.85rem;
+}
+
+.navbar__city select {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+    padding: 0;
+    max-width: 100px;
+}
+
+/* Auth Buttons */
+.navbar__auth-btns {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+/* User Menu */
+.navbar__user-menu {
+    position: relative;
+}
+
+.navbar__avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    border: 2px solid transparent;
+    transition: var(--transition);
+}
+
+.navbar__avatar:hover {
+    border-color: var(--text-primary);
+}
+
+.navbar__dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    min-width: 200px;
+    box-shadow: var(--shadow-card);
+    animation: fadeIn 0.15s ease;
+}
+
+.navbar__dropdown-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.navbar__dropdown-email {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: var(--space-sm);
+}
+
+.navbar__dropdown hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: var(--space-sm) 0;
+}
+
+.navbar__dropdown a,
+.navbar__dropdown button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    background: transparent;
+    border: none;
+    transition: var(--transition);
+}
+
+.navbar__dropdown a:hover,
+.navbar__dropdown button:hover {
+    background: var(--bg-card);
+    color: var(--text-primary);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+    .navbar__links {
+        display: none;
+    }
+
+    .navbar__city select {
+        max-width: 80px;
+    }
+}

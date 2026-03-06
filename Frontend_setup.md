@@ -342,3 +342,173 @@ npm install react-router-dom axios react-hot-toast
 | `frontend/.env` | Environment variables (API URL + Razorpay key) |
 | `src/pages/*.jsx` | Placeholder stubs for all 11 public/protected pages |
 | `src/pages/admin/*.jsx` | Placeholder stubs for all 5 admin pages |
+
+---
+
+### ✅ CHUNK 2 — Completed
+
+**Build result:**
+```
+✓ 64 modules transformed
+✓ built in 7.54s   (0 errors, 0 warnings)
+```
+
+**Design System — `src/index.css`**
+
+The global stylesheet defines a **dark cinema theme** using CSS custom properties (design tokens) so colours and spacing are controlled from one place:
+
+| Token | Value | Used for |
+|-------|-------|---------|
+| `--bg-primary` | `#0a0a0f` | Page background |
+| `--accent` | `#e50914` | Buttons, active states |
+| `--gold` | `#f5c518` | Events, admin highlights |
+| `--font-display` | `Bebas Neue` | Section headings |
+| `--font-body` | `Inter` | All body text |
+
+Utility classes defined: `.btn`, `.btn-primary`, `.btn-ghost`, `.btn-gold`, `.badge`, `.card`, `.skeleton`, `.grid-4`, `.grid-3`, `.section-title`, `.container`.
+
+**Files created:**
+
+| File | What it does |
+|------|-------------|
+| `src/index.css` | Global design tokens, reset, utility classes, responsive grid |
+| `src/components/Navbar.jsx` | Sticky frosted-glass header — city dropdown (live from `/api/cities`), user avatar with dropdown menu (name, email, logout), admin link |
+| `src/components/Navbar.css` | Backdrop-blur sticky positioning, animated underline on links, fade-in dropdown |
+| `src/components/MovieCard.jsx` | Reusable card for movies AND events — lazy-loaded poster, hover zoom + overlay "Book Now" CTA, status badge |
+| `src/components/MovieCard.css` | Poster aspect-ratio 2:3, scale-up on hover, opacity overlay transition |
+| `src/components/Footer.jsx` | Brand logo + tagline + nav link groups, dynamic copyright year |
+| `src/components/Footer.css` | Dark secondary background, link hover transitions |
+| `src/components/Layout.jsx` | Wrapper: `<Navbar /> → {children} → <Footer />` — imported by every page |
+| `src/App.css` | Cleared Vite boilerplate (all styles now in `index.css`) |
+
+**Key design decisions:**
+- Every page will `import Layout from '../components/Layout'` and wrap its content — this avoids repeating the Navbar and Footer in every file.
+- `MovieCard` handles both movies and events via the `type` prop, so we don't need two separate card components.
+- The Navbar fetches `/api/cities` on mount and populates the dropdown — when the user picks a city, `CityContext` updates globally and every page re-renders with filtered content.
+
+---
+
+### ✅ CHUNK 3 — Completed
+
+**Build result:**
+```
+✓ 126 modules transformed
+✓ built in 7.66s   (0 errors, 0 warnings)
+```
+
+**Files created:**
+
+| File | What it does |
+|------|-------------|
+| `src/pages/Home.jsx` + `Home.css` | Hero banner (auto-advances every 5s via `setInterval`), parallel `Promise.all` fetch of trending+movies+events, skeleton loaders, city-filtered grids with "See All" links |
+| `src/pages/MovieDetail.jsx` + `MovieDetail.css` | Blurred backdrop banner, shows grouped by date, slot cards with time/theatre/price/seats-remaining, red warning when seats < 20, redirects non-logged-in users to `/login` |
+| `src/pages/EventDetail.jsx` | Same structure as MovieDetail — reuses `MovieDetail.css` |
+| `src/pages/AllMovies.jsx` | Full grid with live text search + genre pill filters (client-side) |
+| `src/pages/AllEvents.jsx` | Same as AllMovies but for events + category filters |
+| `src/pages/NotFound.jsx` + `NotFound.css` | 404 page with glowing oversized "404" in Bebas Neue display font |
+| `src/pages/Listing.css` | Shared styles for AllMovies + AllEvents (search field, pill filters) |
+
+**Key patterns used:**
+- `Promise.all` on Home avoids 3 sequential API calls — all run at the same time.
+- Shows are grouped by date using `Array.reduce()` — the UI groups slot buttons under each date heading.
+- `EventDetail` reuses `MovieDetail.css` — same visual design, no duplicate styles.
+- All grids show `skeleton` divs while loading — no blank white flashes.
+
+---
+
+### ✅ CHUNK 4 — Completed
+
+**Build result:**
+```
+✓ 127 modules transformed
+✓ built in 6.58s   (0 errors, 0 warnings)
+```
+
+**Files created:**
+
+| File | What it does |
+|------|-------------|
+| `src/pages/Login.jsx` | Two-panel layout — brand panel (cinema background + red gradient) + form panel. Calls `POST /auth/login`, saves token via `login()` from AuthContext, routes admins → `/admin`, users → `/` |
+| `src/pages/Register.jsx` | Same two-panel layout. Client-side validation: required fields, min 6-char password, confirm-password match. Calls `POST /auth/register`, redirects to `/login` on success |
+| `src/pages/Auth.css` | Split-screen design — left panel uses Unsplash cinematic background with `rgba` red overlay. Right form panel is a clean dark card. Mobile: brand panel hidden, form goes full-screen |
+
+**Validation logic in Register:**
+1. All fields required → toast error
+2. Password < 6 chars → toast error
+3. Password ≠ confirm → toast error
+4. API error (e.g. email taken) → shows server message via `err.response.data.message`
+
+**Flow after Login:**
+```
+POST /api/auth/login
+  → res.data = { token, user: { role } }
+  → login(user, token) → saves to state + localStorage
+  → if role === 'admin' → /admin
+  → else → /
+```
+
+---
+
+### ✅ CHUNK 5 — Completed
+
+**Build result:**
+```
+✓ 130 modules transformed
+✓ built in 6.77s   (0 errors, 0 warnings)
+```
+
+**Files created:**
+
+| File | What it does |
+|------|-------------|
+| `src/pages/SeatSelection.jsx` + `SeatSelection.css` | 10×10 interactive seat grid (A1-J10), click to select/deselect, sticky bottom bar shows seat count + total amount, passes data to BookingConfirm via React Router `state` |
+| `src/pages/BookingConfirm.jsx` + `BookingConfirm.css` | 3-step flow: lock seats → open Razorpay → verify payment. Razorpay JS SDK loaded dynamically. Success screen shows bouncing 🎟️ with seat badges |
+| `src/pages/MyBookings.jsx` + `MyBookings.css` | Booking history with status badges (green=confirmed, gray=pending), seat labels as individual badges, gold amount display |
+
+**Razorpay payment flow (in order):**
+```
+1. User clicks "Pay ₹X"
+2. POST /api/bookings        → locks seats, returns booking_id + amount
+3. POST /api/payment/create-order → gets Razorpay order_id
+4. window.Razorpay opens (loaded via script tag, not bundled)
+5. User completes payment in Razorpay dialog
+6. handler() fires → POST /api/payment/verify (SHA256 signature check)
+7. booking.status → 'confirmed' in DB
+8. Success screen appears
+```
+
+**Key decision:** Razorpay SDK is loaded lazily (`loadRazorpayScript()`) only when the user clicks Pay — not bundled in the app — so it doesn't inflate the JS bundle.
+
+---
+
+### ✅ CHUNK 6 — Completed (Final Chunk!)
+
+**Build result:**
+```
+✓ 131 modules transformed
+✓ built in 7.53s   (0 errors, 0 warnings)
+```
+
+**Files created:**
+
+| File | What it does |
+|------|-------------|
+| `AdminLayout.jsx` | Sticky sidebar with `NavLink` active highlighting. Uses `<Outlet />` for nested admin routes |
+| `Admin.css` | Shared admin styles: sidebar, stat cards (3 colour variants), table, slide-up modal |
+| `Dashboard.jsx` | 5 stat cards + quick action links + recent bookings table (fetched in parallel) |
+| `ManageMovies.jsx` | Full CRUD: table + Add/Edit modal form + Delete confirm. Trending checkbox |
+| `ManageEvents.jsx` | CRUD for events (category, poster, promo URL, description) |
+| `ManageTheatres.jsx` | CRUD with city dropdown from `/api/cities`. FK-aware delete error message |
+| `ManageShows.jsx` | Show type toggle switches Movie/Event dropdown. Auto-seat generation notice |
+
+**Admin route nesting:**
+```
+/admin           → AdminLayout
+  index          → Dashboard
+  movies         → ManageMovies
+  events         → ManageEvents
+  theatres       → ManageTheatres
+  shows          → ManageShows
+```
+
+## 🎉 ALL 6 CHUNKS COMPLETE — 131 modules, 0 errors
