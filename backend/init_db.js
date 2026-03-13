@@ -37,6 +37,7 @@ async function createTables() {
       CREATE TABLE IF NOT EXISTS theatres (
         theatre_id INT PRIMARY KEY AUTO_INCREMENT,
         name VARCHAR(100) NOT NULL,
+        address VARCHAR(255),
         city_id INT NOT NULL,
         total_rows INT NOT NULL,
         seats_per_row INT NOT NULL,

@@ -105,7 +105,32 @@ function ManageMovies() {
                             {/* Title */}
                             <div className="form-group">
                                 <label>Title *</label>
-                                <input name="title" type="text" value={form.title || ''} onChange={handleChange} />
+                                <div style={{ display: 'flex', gap: 'var(--space-xs)' }}>
+                                    <input name="title" type="text" value={form.title || ''} onChange={handleChange} style={{ flex: 1 }} />
+                                    <button 
+                                        type="button" 
+                                        className="btn btn-sm btn-ghost" 
+                                        onClick={async () => {
+                                            if (!form.title) return toast.error('Enter title first!');
+                                            try {
+                                                setLoading(true);
+                                                const res = await API.post('/admin/movies/fetch-meta', { title: form.title });
+                                                // Map first genre if possible (Cinebook uses comma-separated string but we have a dropdown)
+                                                // For now, we'll try to match the first genre name to the dropdown
+                                                const firstGenre = res.data.genre.split(', ')[0];
+                                                setForm(f => ({ ...f, ...res.data, genre: firstGenre }));
+                                                toast.success('Metadata fetched from TMDb!');
+                                            } catch (err) {
+                                                toast.error(err.response?.data?.message || 'Meta fetch failed.');
+                                            } finally {
+                                                setLoading(false);
+                                            }
+                                        }}
+                                        disabled={loading}
+                                    >
+                                        {loading ? '...' : '✨ Fetch'}
+                                    </button>
+                                </div>
                             </div>
 
                             {/* Genre dropdown */}

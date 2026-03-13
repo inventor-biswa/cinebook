@@ -1,4 +1,6 @@
 const pool = require('../../config/db');
+const tmdb = require('../../utils/tmdb');
+
 
 // ─── ADMIN: GET ALL MOVIES ───────────────────────────────────────────────────
 // GET /api/admin/movies
@@ -83,5 +85,31 @@ exports.deleteMovie = async (req, res) => {
             return res.status(400).json({ message: 'Cannot delete movie because it has associated shows.' });
         }
         res.status(500).json({ message: 'Server error deleting movie.' });
+    }
+};
+
+// ─── ADMIN: FETCH MOVIE META FROM TMDB ───────────────────────────────────────
+// POST /api/admin/movies/fetch-meta
+exports.fetchMovieMeta = async (req, res) => {
+    try {
+        const { title } = req.body;
+        if (!title) {
+            return res.status(400).json({ message: 'Title is required to fetch metadata.' });
+        }
+
+        const results = await tmdb.searchMovie(title);
+        if (!results || results.length === 0) {
+            return res.status(404).json({ message: 'No movies found on TMDb.' });
+        }
+
+        // Get details for the first/best match
+        const bestMatch = results[0];
+        const details = await tmdb.getMovieDetails(bestMatch.id);
+        const formatted = tmdb.formatMovieData(details);
+
+        res.json(formatted);
+    } catch (error) {
+        console.error('Admin fetchMovieMeta error:', error.message);
+        res.status(500).json({ message: 'Error fetching metadata from TMDb.' });
     }
 };
