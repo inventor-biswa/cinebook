@@ -102,10 +102,39 @@ function ManageMovies() {
                             <button className="admin-modal__close" onClick={closeModal}>✕</button>
                         </div>
                         <form onSubmit={handleSubmit}>
+                            {/* Title */}
+                            <div className="form-group">
+                                <label>Title *</label>
+                                <input name="title" type="text" value={form.title || ''} onChange={handleChange} />
+                            </div>
+
+                            {/* Genre dropdown */}
+                            <div className="form-group">
+                                <label>Genre</label>
+                                <select name="genre" value={form.genre || ''} onChange={handleChange}>
+                                    <option value="">Select genre…</option>
+                                    {['Action', 'Adventure', 'Animation', 'Biography', 'Comedy', 'Crime',
+                                        'Documentary', 'Drama', 'Fantasy', 'Horror', 'Musical',
+                                        'Mystery', 'Romance', 'Sci-Fi', 'Thriller', 'Sport'].map(g => (
+                                            <option key={g} value={g}>{g}</option>
+                                        ))}
+                                </select>
+                            </div>
+
+                            {/* Language dropdown */}
+                            <div className="form-group">
+                                <label>Language</label>
+                                <select name="language" value={form.language || ''} onChange={handleChange}>
+                                    <option value="">Select language…</option>
+                                    {['Hindi', 'English', 'Tamil', 'Telugu', 'Kannada', 'Malayalam',
+                                        'Bengali', 'Marathi', 'Punjabi', 'Gujarati', 'Odia', 'Bhojpuri'].map(l => (
+                                            <option key={l} value={l}>{l}</option>
+                                        ))}
+                                </select>
+                            </div>
+
+                            {/* URL fields */}
                             {[
-                                { name: 'title', label: 'Title *', type: 'text' },
-                                { name: 'genre', label: 'Genre', type: 'text' },
-                                { name: 'language', label: 'Language', type: 'text' },
                                 { name: 'poster_url', label: 'Poster URL', type: 'url' },
                                 { name: 'trailer_url', label: 'Trailer URL', type: 'url' },
                                 { name: 'release_date', label: 'Release Date', type: 'date' },

@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import API from '../../api/axios';
 import './Admin.css';
+import './ManageShows.css';
 
-const EMPTY = { show_type: 'movie', content_id: '', theatre_id: '', show_date: '', show_time: '', price: '' };
+// One scheduler "row" = one theatre + multiple time slots
+const newTheatreRow = () => ({ theatre_id: '', times: [''] });
 
 function ManageShows() {
     const [shows, setShows] = useState([]);
@@ -11,8 +13,16 @@ function ManageShows() {
     const [events, setEvents] = useState([]);
     const [theatres, setTheatres] = useState([]);
     const [modal, setModal] = useState(false);
-    const [form, setForm] = useState(EMPTY);
     const [loading, setLoading] = useState(false);
+
+    // Shared fields
+    const [showType, setShowType] = useState('movie');
+    const [contentId, setContentId] = useState('');
+    const [showDate, setShowDate] = useState('');
+    const [price, setPrice] = useState('');
+
+    // Dynamic rows: [ { theatre_id, times: ['09:00','11:00'] }, ... ]
+    const [rows, setRows] = useState([newTheatreRow()]);
 
     const fetchData = () => Promise.all([
         API.get('/admin/shows').then(r => setShows(r.data)),
@@ -23,56 +33,109 @@ function ManageShows() {
 
     useEffect(() => { fetchData(); }, []);
 
-    const handleChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+    const openModal = () => {
+        setShowType('movie'); setContentId(''); setShowDate(''); setPrice('');
+        setRows([newTheatreRow()]); setModal(true);
+    };
 
+    // ── Row manipulators ──────────────────────────────────────────────────────
+    const setRowTheatre = (rowIdx, theatreId) => {
+        setRows(prev => prev.map((r, i) => i === rowIdx ? { ...r, theatre_id: theatreId } : r));
+    };
+    const setRowTime = (rowIdx, timeIdx, val) => {
+        setRows(prev => prev.map((r, i) => {
+            if (i !== rowIdx) return r;
+            const times = [...r.times];
+            times[timeIdx] = val;
+            return { ...r, times };
+        }));
+    };
+    const addTime = (rowIdx) => {
+        setRows(prev => prev.map((r, i) => i === rowIdx ? { ...r, times: [...r.times, ''] } : r));
+    };
+    const removeTime = (rowIdx, timeIdx) => {
+        setRows(prev => prev.map((r, i) => {
+            if (i !== rowIdx) return r;
+            return { ...r, times: r.times.filter((_, ti) => ti !== timeIdx) };
+        }));
+    };
+    const addTheatreRow = () => setRows(prev => [...prev, newTheatreRow()]);
+    const removeTheatreRow = (rowIdx) => setRows(prev => prev.filter((_, i) => i !== rowIdx));
+
+    // ── Submit: create one show per (theatre × time) combination ─────────────
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const { show_type, content_id, theatre_id, show_date, show_time, price } = form;
-        if (!content_id || !theatre_id || !show_date || !show_time || !price) {
-            toast.error('All fields are required.'); return;
+        if (!contentId || !showDate || !price) { toast.error('Content, date and price are required.'); return; }
+        // Validate all rows have a theatre and at least one time
+        for (const row of rows) {
+            if (!row.theatre_id) { toast.error('Please select a theatre for every row.'); return; }
+            if (row.times.some(t => !t)) { toast.error('Please fill in all time slots.'); return; }
         }
+
         setLoading(true);
-        try {
-            const payload = {
-                theatre_id: parseInt(theatre_id),
-                show_date, show_time,
-                price: parseFloat(price),
-                ...(show_type === 'movie'
-                    ? { movie_id: parseInt(content_id) }
-                    : { event_id: parseInt(content_id) }),
-            };
-            await API.post('/admin/shows', payload);
-            toast.success('Show scheduled! Seats auto-generated ✅');
-            setModal(false); setForm(EMPTY); fetchData();
-        } catch (err) { toast.error(err.response?.data?.message || 'Failed.'); }
-        finally { setLoading(false); }
+        let created = 0, failed = 0;
+
+        // Build flat list of all (theatre, time) pairs
+        const combos = rows.flatMap(row =>
+            row.times.map(time => ({ theatre_id: parseInt(row.theatre_id), time }))
+        );
+
+        await Promise.allSettled(
+            combos.map(({ theatre_id, time }) =>
+                API.post('/admin/shows', {
+                    theatre_id,
+                    show_date: showDate,
+                    show_time: time,
+                    price: parseFloat(price),
+                    ...(showType === 'movie'
+                        ? { movie_id: parseInt(contentId) }
+                        : { event_id: parseInt(contentId) }),
+                }).then(() => created++).catch(() => failed++)
+            )
+        );
+
+        setLoading(false);
+        if (created > 0) toast.success(`✅ ${created} show${created > 1 ? 's' : ''} scheduled!`);
+        if (failed > 0) toast.error(`${failed} show(s) failed (duplicate slot?).`);
+        setModal(false);
+        fetchData();
     };
 
     const handleDelete = async (id) => {
         if (!window.confirm('Delete this show? All seat data will be removed.')) return;
-        try { await API.delete(`/admin/shows/${id}`); toast.success('Show deleted.'); setShows(p => p.filter(s => s.show_id !== id)); }
-        catch { toast.error('Delete failed.'); }
+        try {
+            await API.delete(`/admin/shows/${id}`);
+            toast.success('Show deleted.');
+            setShows(p => p.filter(s => s.show_id !== id));
+        } catch { toast.error('Delete failed.'); }
     };
 
-    const contentOptions = form.show_type === 'movie' ? movies : events;
+    const contentOptions = showType === 'movie' ? movies : events;
 
     return (
         <div>
             <div className="admin-header">
                 <h1>Shows</h1>
-                <button className="btn btn-primary" onClick={() => { setForm(EMPTY); setModal(true); }}>+ Schedule Show</button>
+                <button className="btn btn-primary" onClick={openModal}>+ Schedule Shows</button>
             </div>
+
+            {/* Shows Table */}
             <div className="admin-table-wrap">
                 <table className="admin-table">
-                    <thead><tr><th>Title</th><th>Theatre</th><th>Date</th><th>Time</th><th>Price</th><th>Seats Left</th><th>Actions</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>Title</th><th>Theatre</th><th>Date</th>
+                            <th>Time</th><th>Price</th><th>Seats Left</th><th>Actions</th>
+                        </tr>
+                    </thead>
                     <tbody>
                         {shows.length === 0 ? (
-                            <tr><td colSpan={7} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No shows scheduled.</td></tr>
+                            <tr><td colSpan={7} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>No shows yet.</td></tr>
                         ) : shows.map(s => (
                             <tr key={s.show_id}>
                                 <td>{s.title}</td>
                                 <td>{s.theatre_name}</td>
-                                <td>{new Date(s.show_date).toLocaleDateString('en-IN')}</td>
+                                <td>{new Date(s.show_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                                 <td>{s.show_time?.slice(0, 5)}</td>
                                 <td style={{ color: 'var(--gold)' }}>₹{s.price}</td>
                                 <td>
@@ -81,7 +144,11 @@ function ManageShows() {
                                     </span>
                                 </td>
                                 <td>
-                                    <button className="btn btn-sm" style={{ background: 'rgba(229,9,20,0.15)', color: 'var(--accent)', border: '1px solid rgba(229,9,20,0.3)' }} onClick={() => handleDelete(s.show_id)}>Delete</button>
+                                    <button
+                                        className="btn btn-sm"
+                                        style={{ background: 'rgba(229,9,20,0.15)', color: 'var(--accent)', border: '1px solid rgba(229,9,20,0.3)' }}
+                                        onClick={() => handleDelete(s.show_id)}
+                                    >Delete</button>
                                 </td>
                             </tr>
                         ))}
@@ -89,48 +156,106 @@ function ManageShows() {
                 </table>
             </div>
 
+            {/* ── Batch Schedule Modal ── */}
             {modal && (
                 <div className="admin-modal-overlay" onClick={e => e.target === e.currentTarget && setModal(false)}>
-                    <div className="admin-modal">
+                    <div className="admin-modal admin-modal--wide">
                         <div className="admin-modal__header">
-                            <h2>Schedule a Show</h2>
+                            <h2>Schedule Shows</h2>
                             <button className="admin-modal__close" onClick={() => setModal(false)}>✕</button>
                         </div>
+
                         <form onSubmit={handleSubmit}>
-                            <div className="form-group">
-                                <label>Show Type</label>
-                                <select name="show_type" value={form.show_type} onChange={handleChange}>
-                                    <option value="movie">Movie</option>
-                                    <option value="event">Event</option>
-                                </select>
+                            {/* Top row: type + content + date + price */}
+                            <div className="show-form-top">
+                                <div className="form-group">
+                                    <label>Type</label>
+                                    <select value={showType} onChange={e => { setShowType(e.target.value); setContentId(''); }}>
+                                        <option value="movie">Movie</option>
+                                        <option value="event">Event</option>
+                                    </select>
+                                </div>
+                                <div className="form-group">
+                                    <label>{showType === 'movie' ? 'Movie' : 'Event'} *</label>
+                                    <select value={contentId} onChange={e => setContentId(e.target.value)}>
+                                        <option value="">Select…</option>
+                                        {contentOptions.map(c => (
+                                            <option key={c.movie_id || c.event_id} value={c.movie_id || c.event_id}>
+                                                {c.title}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="form-group">
+                                    <label>Date *</label>
+                                    <input type="date" value={showDate} onChange={e => setShowDate(e.target.value)} />
+                                </div>
+                                <div className="form-group">
+                                    <label>Price (₹) *</label>
+                                    <input type="number" min="0" step="0.01" value={price} onChange={e => setPrice(e.target.value)} />
+                                </div>
                             </div>
-                            <div className="form-group">
-                                <label>{form.show_type === 'movie' ? 'Movie' : 'Event'} *</label>
-                                <select name="content_id" value={form.content_id} onChange={handleChange}>
-                                    <option value="">Select…</option>
-                                    {contentOptions.map(c => (
-                                        <option key={c.movie_id || c.event_id} value={c.movie_id || c.event_id}>{c.title}</option>
-                                    ))}
-                                </select>
+
+                            {/* Theatre rows */}
+                            <div className="show-form-label">
+                                <span>Theatres & Time Slots</span>
+                                <button type="button" className="btn btn-ghost btn-sm" onClick={addTheatreRow}>
+                                    + Add Theatre
+                                </button>
                             </div>
-                            <div className="form-group">
-                                <label>Theatre *</label>
-                                <select name="theatre_id" value={form.theatre_id} onChange={handleChange}>
-                                    <option value="">Select…</option>
-                                    {theatres.map(t => <option key={t.theatre_id} value={t.theatre_id}>{t.name}</option>)}
-                                </select>
+
+                            <div className="show-theatre-rows">
+                                {rows.map((row, rowIdx) => (
+                                    <div key={rowIdx} className="show-theatre-row">
+                                        {/* Theatre selector */}
+                                        <div className="show-theatre-row__head">
+                                            <select
+                                                value={row.theatre_id}
+                                                onChange={e => setRowTheatre(rowIdx, e.target.value)}
+                                                className="show-theatre-select"
+                                            >
+                                                <option value="">Select theatre…</option>
+                                                {theatres.map(t => (
+                                                    <option key={t.theatre_id} value={t.theatre_id}>{t.name}</option>
+                                                ))}
+                                            </select>
+                                            {rows.length > 1 && (
+                                                <button type="button" className="show-remove-row" onClick={() => removeTheatreRow(rowIdx)}>✕</button>
+                                            )}
+                                        </div>
+
+                                        {/* Time slots */}
+                                        <div className="show-time-slots">
+                                            {row.times.map((t, tIdx) => (
+                                                <div key={tIdx} className="show-time-chip">
+                                                    <input
+                                                        type="time"
+                                                        value={t}
+                                                        onChange={e => setRowTime(rowIdx, tIdx, e.target.value)}
+                                                    />
+                                                    {row.times.length > 1 && (
+                                                        <button type="button" onClick={() => removeTime(rowIdx, tIdx)}>✕</button>
+                                                    )}
+                                                </div>
+                                            ))}
+                                            <button type="button" className="show-add-time" onClick={() => addTime(rowIdx)}>
+                                                + Add Time
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-md)' }}>
-                                <div className="form-group"><label>Date *</label><input name="show_date" type="date" value={form.show_date} onChange={handleChange} /></div>
-                                <div className="form-group"><label>Time *</label><input name="show_time" type="time" value={form.show_time} onChange={handleChange} /></div>
-                            </div>
-                            <div className="form-group"><label>Price (₹) *</label><input name="price" type="number" min="0" step="0.01" value={form.price} onChange={handleChange} /></div>
-                            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: 'var(--space-md)' }}>
-                                ℹ️ Saving will auto-generate 100 seats (A1–J10) in the database.
+
+                            {/* Summary count */}
+                            <p className="show-form-summary">
+                                Will create <strong>{rows.reduce((n, r) => n + r.times.length, 0)}</strong> show(s) with 100 auto-generated seats each.
                             </p>
+
                             <div className="admin-modal__actions">
                                 <button type="button" className="btn btn-ghost" onClick={() => setModal(false)}>Cancel</button>
-                                <button type="submit" className="btn btn-primary" disabled={loading}>{loading ? 'Scheduling…' : 'Schedule Show'}</button>
+                                <button type="submit" className="btn btn-primary" disabled={loading}>
+                                    {loading ? 'Scheduling…' : 'Schedule All Shows'}
+                                </button>
                             </div>
                         </form>
                     </div>

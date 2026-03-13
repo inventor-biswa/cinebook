@@ -4,7 +4,6 @@ const pool = require('../../config/db');
 // GET /api/admin/theatres
 exports.getAllTheatres = async (req, res) => {
     try {
-        // We join with the cities table to get the actual city name, not just the ID.
         const [theatres] = await pool.query(
             `SELECT t.*, c.name AS city_name 
              FROM theatres t 
@@ -22,17 +21,22 @@ exports.getAllTheatres = async (req, res) => {
 // POST /api/admin/theatres
 exports.createTheatre = async (req, res) => {
     try {
-        const { city_id, name, address, layout_plan } = req.body;
+        const { city_id, name, address, total_seats } = req.body;
 
-        if (!city_id || !name || !address) {
-            return res.status(400).json({ message: 'city_id, name, and address are required.' });
+        if (!city_id || !name) {
+            return res.status(400).json({ message: 'city_id and name are required.' });
         }
+
+        // total_seats maps to total_rows * seats_per_row
+        // We store as 10 rows × N seats_per_row (default 10×10 = 100)
+        const rows = 10;
+        const seatsPerRow = Math.ceil((parseInt(total_seats) || 100) / rows);
 
         const [result] = await pool.query(
             `INSERT INTO theatres 
-             (city_id, name, address, layout_plan) 
-             VALUES (?, ?, ?, ?)`,
-            [city_id, name, address, layout_plan || null]
+             (city_id, name, address, total_rows, seats_per_row) 
+             VALUES (?, ?, ?, ?, ?)`,
+            [city_id, name, address || null, rows, seatsPerRow]
         );
 
         res.status(201).json({ message: 'Theatre created successfully.', theatre_id: result.insertId });
@@ -47,17 +51,20 @@ exports.createTheatre = async (req, res) => {
 exports.updateTheatre = async (req, res) => {
     try {
         const { id } = req.params;
-        const { city_id, name, address, layout_plan } = req.body;
+        const { city_id, name, address, total_seats } = req.body;
 
-        if (!city_id || !name || !address) {
-            return res.status(400).json({ message: 'city_id, name, and address are required.' });
+        if (!city_id || !name) {
+            return res.status(400).json({ message: 'city_id and name are required.' });
         }
+
+        const rows = 10;
+        const seatsPerRow = Math.ceil((parseInt(total_seats) || 100) / rows);
 
         const [result] = await pool.query(
             `UPDATE theatres 
-             SET city_id=?, name=?, address=?, layout_plan=?
+             SET city_id=?, name=?, address=?, total_rows=?, seats_per_row=?
              WHERE theatre_id=?`,
-            [city_id, name, address, layout_plan, id]
+            [city_id, name, address || null, rows, seatsPerRow, id]
         );
 
         if (result.affectedRows === 0) {
@@ -86,7 +93,6 @@ exports.deleteTheatre = async (req, res) => {
         res.json({ message: 'Theatre deleted successfully.' });
     } catch (error) {
         console.error('Admin deleteTheatre error:', error);
-        // 1451 is the MySQL error code for foreign key constraint failure
         if (error.errno === 1451) {
             return res.status(400).json({ message: 'Cannot delete theatre because it has associated shows.' });
         }

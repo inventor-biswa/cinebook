@@ -1,0 +1,162 @@
+/* ─── MANAGE SHOWS — BATCH SCHEDULER ─────────────────────────────────────────── */
+
+/* Wide modal */
+.admin-modal--wide {
+    max-width: 700px;
+}
+
+/* Top 4-column row */
+.show-form-top {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr 1fr;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+
+/* Theatre rows label row */
+.show-form-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-sm) 0;
+    margin-bottom: var(--space-sm);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+.show-form-label span {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+/* Individual theatre row */
+.show-theatre-rows {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+
+.show-theatre-row {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+}
+
+.show-theatre-row__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+}
+
+.show-theatre-select {
+    flex: 1;
+    background: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    padding: 8px 10px;
+    font-size: 0.875rem;
+    outline: none;
+}
+
+.show-remove-row {
+    background: rgba(229, 9, 20, 0.12);
+    border: 1px solid rgba(229, 9, 20, 0.3);
+    color: var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: var(--transition);
+    flex-shrink: 0;
+}
+
+.show-remove-row:hover {
+    background: rgba(229, 9, 20, 0.25);
+}
+
+/* Time slots */
+.show-time-slots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    align-items: center;
+}
+
+.show-time-chip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: 4px 8px;
+}
+
+.show-time-chip input[type="time"] {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    outline: none;
+    padding: 0;
+    width: 90px;
+    cursor: pointer;
+}
+
+.show-time-chip button {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    cursor: pointer;
+    padding: 0 2px;
+    line-height: 1;
+}
+
+.show-time-chip button:hover {
+    color: var(--accent);
+}
+
+.show-add-time {
+    background: none;
+    border: 1px dashed var(--border-strong);
+    color: var(--text-muted);
+    border-radius: var(--radius-sm);
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.show-add-time:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* Summary */
+.show-form-summary {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    background: rgba(229, 9, 20, 0.06);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--accent);
+}
+
+.show-form-summary strong {
+    color: var(--text-primary);
+}
+
+@media (max-width: 640px) {
+    .show-form-top {
+        grid-template-columns: 1fr 1fr;
+    }
+}

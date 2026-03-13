@@ -104,7 +104,7 @@
 }
 
 .navbar__city select {
-    background: transparent;
+    background: var(--bg-elevated);
     border: none;
     color: var(--text-primary);
     font-size: 0.85rem;
@@ -113,6 +113,12 @@
     outline: none;
     padding: 0;
     max-width: 100px;
+}
+
+/* Force dark background on dropdown options (overrides OS default white) */
+.navbar__city select option {
+    background: #1a1a26;
+    color: #e0e0e8;
 }
 
 /* Auth Buttons */
