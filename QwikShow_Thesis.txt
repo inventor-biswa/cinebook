@@ -1,0 +1,2139 @@
+================================================================================
+                              PROJECT REPORT
+================================================================================
+
+                               ON
+                        "QWIKSHOW"
+              A Multi-City Movie & Event Booking Platform
+
+================================================================================
+
+Submitted in partial fulfillment of the requirements for the degree of
+
+              MASTER OF COMPUTER APPLICATIONS (MCA)
+
+================================================================================
+
+Submitted By:
+[Student Name]
+Roll No.: [Roll Number]
+MCA [Year] – Batch [Batch]
+
+Under the Guidance of:
+[Guide Name]
+[Designation], Department of Computer Science
+
+================================================================================
+
+           [UNIVERSITY / COLLEGE NAME]
+           Department of Computer Science & Applications
+           [City, State] – [PIN Code]
+           Academic Year: 2024-2025
+
+================================================================================
+
+
+
+
+================================================================================
+                              CERTIFICATE
+================================================================================
+
+This is to certify that the project report entitled "QwikShow: A Multi-City Movie
+& Event Booking Platform" is a bonafide record of the work done by [Student Name],
+Roll No. [Roll Number], submitted in partial fulfillment of the requirements for
+the award of Master of Computer Applications (MCA) degree from [University Name].
+
+The work has been completed under my supervision and guidance and is of
+satisfactory standard.
+
+
+Project Guide:                              Head of Department:
+[Guide Name]                                [HOD Name]
+[Designation]                               [Designation]
+[Department]                                [Department]
+[University Name]                           [University Name]
+
+Date: __________                            Date: __________
+
+Place: __________                           Place: __________
+
+
+================================================================================
+                            DECLARATION
+================================================================================
+
+I, [Student Name], Roll No. [Roll Number], student of Master of Computer
+Applications at [University/College Name], hereby declare that the project
+report entitled "QwikShow: A Multi-City Movie & Event Booking Platform" submitted
+by me is an original piece of work and has been carried out by me under the
+supervision of [Guide Name], [Designation], Department of Computer Science.
+
+I further declare that this project has not been submitted, either in part or
+in full, to any other university or institution for the award of any degree or
+diploma. All the information furnished in this report is true to the best of my
+knowledge and belief.
+
+Date: __________
+Place: __________
+
+                                                  [Student Name]
+                                                  Roll No.: [Roll Number]
+
+
+================================================================================
+                            ACKNOWLEDGEMENT
+================================================================================
+
+I extend my heartfelt gratitude to all those who helped me in successful
+completion of this project.
+
+First and foremost, I am deeply grateful to my project guide, [Guide Name],
+[Designation], Department of Computer Science, for the constant guidance,
+support, and encouragement throughout the project. Her/His valuable suggestions
+and constructive criticism shaped this project significantly.
+
+I am also thankful to [HOD Name], Head of Department, for providing the
+necessary infrastructure and resources for the development of this project.
+
+I would like to extend my sincere thanks to all the faculty members of the
+Department of Computer Science for their moral support and academic inputs.
+
+Last but not least, I am thankful to my family and friends for their constant
+encouragement and support throughout this endeavour.
+
+                                                  [Student Name]
+                                                  Roll No.: [Roll Number]
+                                                  MCA – [Year]
+
+
+================================================================================
+                              ABSTRACT
+================================================================================
+
+QwikShow is a full-stack, multi-city movie and event booking web application
+designed to simulate the core functionalities of real-world entertainment
+ticketing platforms. The system supports two primary roles: end-users and
+administrators. Registered users can browse movies and events filtered by
+their selected city, view real-time seat availability on a visual seat map,
+book seats, and make secure payments through Razorpay (integrated in test mode).
+Administrators are empowered with a dedicated control panel to manage movies,
+events, theatres, shows, and generate revenue reports.
+
+The project is built using a modern MERN-inspired stack — React.js for the
+frontend UI, Node.js with Express.js as the backend REST API server, and
+MySQL as the relational database, hosted via XAMPP. Authentication relies on
+JWT (JSON Web Tokens) with bcrypt password hashing. The payment gateway
+integration uses Razorpay's order-and-verify flow with HMAC-SHA256 signature
+verification to prevent tampering.
+
+Key technical highlights include: database-level transactions to prevent double
+seat bookings (race condition safety), role-based access control middleware,
+city-based content filtering using React Context API, auto-generated seat maps
+from theatre configuration, trailer embedding via YouTube iframe, and a
+trending-content toggle for the home page banner.
+
+This report documents the complete lifecycle of the QwikShow project, including
+requirement analysis, system design, database schema, implementation details,
+testing, and operational guidance.
+
+Keywords: Movie Booking, Event Booking, React.js, Node.js, Express.js, MySQL,
+Razorpay, JWT Authentication, Seat Selection, MCA Final Year Project.
+
+
+================================================================================
+                           TABLE OF CONTENTS
+================================================================================
+
+1.  Introduction
+2.  Objective & Scope of the Project
+3.  Theoretical Background
+4.  Definition of Problem
+5.  System Analysis & Design vis-a-vis User Requirements
+    5.1 Identification of Need
+    5.2 Preliminary Investigation
+6.  Feasibility Study
+    6.1 Technical Feasibility
+    6.2 Economic Feasibility
+    6.3 Operational Feasibility
+7.  System Planning
+8.  Methodology, System Implementation & Details of Hardware & Software Used
+    8.1 Development Methodology
+    8.2 System Implementation
+    8.3 Hardware Requirements
+    8.4 Software Requirements
+9.  System Maintenance & Evaluation
+10. Cost and Benefit Analysis
+11. Detailed Life Cycle of the Project
+    11.1 Data Flow Diagram (DFD)
+    11.2 ER Diagram
+    11.3 Use Case Diagram
+    11.4 Activity Diagram
+    11.5 Sequence Diagram
+    11.6 Input and Output Screen Design
+    11.7 Process Involved
+    11.8 Methodology Used for Testing
+    11.9 Test Report & Printout of Reports
+    11.10 Printout of Code Sheet
+    11.11 User / Operational Manual
+    11.12 Conclusion
+12. References
+
+
+================================================================================
+               CHAPTER 1: INTRODUCTION
+================================================================================
+
+1.1 Background
+--------------
+The entertainment industry has witnessed a paradigm shift in the way audiences
+interact with booking services. Gone are the days of standing in long queues at
+box office windows. Today, consumers expect instant, convenient, and secure
+online booking experiences accessible from any device and any location.
+
+India's film industry — Bollywood, Tollywood, Kollywood, and regional cinema —
+combined produces thousands of films every year. The live events segment
+(concerts, comedy shows, cultural festivals) is equally thriving. Platforms
+like BookMyShow have proven that a seamless digital booking experience can
+transform the way audiences engage with entertainment.
+
+QwikShow is designed as an academic recreation of this concept — a multi-city,
+multi-theatre, full-stack movie and event booking platform. It brings together
+modern web technologies to deliver a rich, production-grade user experience
+while remaining within the scope of an MCA final year project.
+
+1.2 Project Motivation
+-----------------------
+The motivation for QwikShow stems from two observations:
+(a) The online entertainment booking sector continues to grow at over 15-20%
+    annually in India, making it a commercially relevant domain to study.
+(b) Building such a system requires integration of multiple complex technical
+    domains: REST API design, relational database modeling, authentication, 
+    payment gateway integration, and reactive frontend development — making it
+    an ideal MCA capstone project.
+
+1.3 Project Name & Branding
+----------------------------
+The project is named "QwikShow" — a combination of "Quick" (indicating speed
+and convenience) and "Show" (referring to any entertainment show, be it a
+movie or live event). The name reflects the core user promise: find and book
+your show, quickly.
+
+
+================================================================================
+               CHAPTER 2: OBJECTIVE & SCOPE OF THE PROJECT
+================================================================================
+
+2.1 Objectives
+--------------
+The primary objectives of the QwikShow project are:
+
+1. To design and develop a full-stack web application for online movie and
+   event ticket booking.
+
+2. To implement role-based access control with two distinct roles:
+   - Regular User: Browse, select seats, pay, manage bookings.
+   - Administrator: Full CRUD control over movies, events, theatres, shows,
+     and access to revenue reports.
+
+3. To implement a secure payment workflow using Razorpay's payment gateway
+   with order creation, checkout popup, and server-side signature verification.
+
+4. To build a dynamic seat selection interface that reflects real-time seat 
+   availability and prevents double-booking using database-level transactions.
+
+5. To develop a city-based content filtering system that allows users to view
+   movies and events relevant to their selected city.
+
+6. To provide admin analytics including booking summaries and revenue reports
+   segmented by movie/event and city.
+
+7. To produce thorough project documentation and user/operational manuals.
+
+2.2 Scope
+---------
+IN SCOPE:
+- Multi-city browsing (Mumbai, Delhi, Bangalore, Hyderabad, Chennai by default)
+- Movie listing, detail page, trailer playback (YouTube embed)
+- Event listing and detail page
+- Show scheduling (specific date, time, theatre, price)
+- Visual seat map selection (grid based on theatre configuration)
+- Razorpay payment integration (test mode)
+- E-Ticket / booking confirmation page
+- User booking history
+- Admin panel: Movies, Events, Theatres, Shows management
+- Admin revenue and booking reports
+- Trending section on home page
+- JWT-based authentication and protected routes
+
+OUT OF SCOPE (for future enhancement):
+- Mobile application (iOS/Android)
+- Real-time seat locking using WebSockets (currently handled by DB transactions)
+- Email/SMS notifications for booking confirmations
+- Loyalty rewards / points system
+- Cancellation and refund processing
+- Multi-language support
+
+
+================================================================================
+               CHAPTER 3: THEORETICAL BACKGROUND
+================================================================================
+
+3.1 Web Application Architecture
+----------------------------------
+QwikShow follows a three-tier architecture:
+  Tier 1 — Presentation Layer  : React.js SPA (Single Page Application)
+  Tier 2 — Application Layer   : Node.js + Express.js REST API Server
+  Tier 3 — Data Layer          : MySQL Relational Database
+
+This separation of concerns allows each layer to evolve independently, improves
+maintainability, and enables horizontal scalability.
+
+3.2 REST API (Representational State Transfer)
+----------------------------------------------
+The QwikShow backend exposes a REST API. REST is an architectural style for
+distributed hypermedia systems. Key REST principles adhered to in QwikShow:
+- Stateless communication (each request is self-contained)
+- Use of standard HTTP methods: GET, POST, PUT, DELETE
+- JSON as the data interchange format
+- Resource-based URL structure (e.g., /api/movies/:id)
+
+3.3 React.js and Component-Based UI
+-------------------------------------
+React.js is a JavaScript library for building user interfaces, developed by
+Meta (Facebook). React applications are made up of reusable components — each
+managing its own state and UI rendering. QwikShow uses:
+- Functional components with React Hooks (useState, useEffect, useContext)
+- React Router v6 for client-side routing
+- Context API for global state (AuthContext for authentication, CityContext
+  for selected city)
+
+3.4 Node.js and Express.js
+---------------------------
+Node.js is a JavaScript runtime built on Chrome's V8 engine that enables
+server-side JavaScript execution. Express.js is a minimalist web framework
+for Node.js. Together they power the QwikShow REST API backend, handling:
+- Incoming HTTP requests and routing
+- Middleware chains (CORS, JSON parsing, JWT validation)
+- Database queries via mysql2 driver (async/await pattern)
+
+3.5 MySQL Relational Database
+------------------------------
+MySQL is a widely used open-source relational database management system. It
+stores data in tables with rows and columns, and enforces referential integrity
+through foreign key constraints. QwikShow's data model is fully relational with
+9 tables and proper foreign key relationships. XAMPP is used as the local
+development environment (Apache + MySQL + PHP bundled).
+
+3.6 JWT Authentication
+-----------------------
+JSON Web Tokens (JWT) are an open standard (RFC 7519) for securely transmitting
+claims between parties as a compact, URL-safe JSON object. A JWT consists of
+three base64-encoded parts: Header, Payload, and Signature. In QwikShow:
+- On login, the server signs a JWT with the user's ID and role using a secret key.
+- The client stores the token in localStorage.
+- Subsequent API requests include the token in the Authorization header.
+- The backend middleware validates the token on every protected route.
+
+3.7 Razorpay Payment Gateway
+------------------------------
+Razorpay is India's leading payment gateway. QwikShow integrates Razorpay in
+test mode to simulate real payment flows:
+  Step 1: Frontend requests backend to create a Razorpay Order (with amount).
+  Step 2: Backend creates the order using Razorpay Node.js SDK and returns
+          order_id, amount, currency.
+  Step 3: Frontend loads the Razorpay checkout popup with the order details.
+  Step 4: User completes test payment (test card: 4111 1111 1111 1111).
+  Step 5: Razorpay calls frontend with razorpay_payment_id, razorpay_order_id,
+          and razorpay_signature.
+  Step 6: Frontend sends these three values to the backend for verification.
+  Step 7: Backend recomputes the expected signature using HMAC-SHA256
+          (order_id + "|" + payment_id, signed with Razorpay key secret).
+  Step 8: If signatures match, the booking is confirmed and seats are marked
+          as booked inside a database transaction.
+
+3.8 ACID Transactions for Seat Booking
+----------------------------------------
+To prevent race conditions (two users booking the same seat simultaneously),
+QwikShow wraps the seat-booking logic inside a MySQL ACID transaction:
+- Atomicity: All seat updates happen together or none do.
+- Consistency: The database remains in a valid state after the transaction.
+- Isolation: Concurrent transactions cannot interfere with each other.
+- Durability: Once committed, bookings are permanently stored.
+
+3.9 bcrypt Password Hashing
+-----------------------------
+User passwords are never stored in plain text. bcrypt is a password hashing
+function that incorporates a salt and is computationally expensive by design,
+making brute-force attacks impractical. QwikShow uses bcrypt with a salt round
+of 10 during registration and bcrypt.compare() during login.
+
+
+================================================================================
+               CHAPTER 4: DEFINITION OF PROBLEM
+================================================================================
+
+4.1 Problem Statement
+----------------------
+The traditional process of purchasing movie or event tickets suffers from
+several critical pain points:
+
+1. Physical Queue Dependence: Users must physically visit the box office and
+   wait in long queues, wasting time and effort.
+
+2. Limited Seat Visibility: Buyers cannot see which seats are available before
+   arriving at the counter, limiting their ability to make informed choices.
+
+3. No Multi-City Aggregation: A single point of access for movies and events
+   across multiple cities does not exist in most local systems.
+
+4. Cash-Only Payment: Traditional box offices are predominantly cash-only,
+   excluding digital payment preferences of modern users.
+
+5. No Booking History: Users have no digital record of their past bookings.
+
+6. Admin Inefficiency: Manually tracking bookings, revenue, and seat 
+   availability across multiple theatres is error-prone and time-consuming.
+
+4.2 Problem in the Context of Existing Systems
+------------------------------------------------
+While commercial platforms like BookMyShow exist, developing a custom system
+from scratch provides:
+- Deep understanding of the technical architecture behind such platforms.
+- Freedom to design business logic according to specific academic requirements.
+- Full-stack development experience across database, backend API, and frontend.
+
+4.3 Proposed Solution
+----------------------
+QwikShow addresses all the above problems by providing:
+- A web-based interface accessible from any browser, any device.
+- A real-time, visual seat selection grid showing live availability.
+- Multi-city browsing with city-filtered content.
+- Razorpay integration for digital payments.
+- Persistent booking history accessible under "My Bookings."
+- A powerful admin panel to manage all content and view reports.
+
+
+================================================================================
+          CHAPTER 5: SYSTEM ANALYSIS & DESIGN VIS-A-VIS USER REQUIREMENTS
+================================================================================
+
+5.1 Identification of Need
+---------------------------
+The need for QwikShow was identified by studying the following pain points
+encountered by movie and event goers:
+
+a) Lack of centralized, digital ticketing for local/regional theatres.
+b) Manual seat booking processes that do not scale with demand.
+c) No transparent, real-time seat availability data for buyers.
+d) High risk of double-booking in manual or poorly engineered systems.
+e) No digital trail of bookings for users to refer to.
+f) Administrators lacking a consolidated dashboard for content management.
+
+User surveys and observation of common workflows at local cinema halls
+confirmed that an automated, role-based, multi-city booking platform would
+significantly improve both the consumer and operator experience.
+
+5.2 Preliminary Investigation
+------------------------------
+During the preliminary investigation phase, the following activities were
+conducted:
+
+a) Stakeholder Identification:
+   - End Users (movie/event goers)
+   - Theatre Administrators / Managers
+   - System Administrator (technical)
+
+b) Existing System Review:
+   - Study of BookMyShow's UX flow and feature set.
+   - Review of open-source movie booking projects on GitHub.
+   - Analysis of Razorpay documentation for payment integration.
+
+c) Requirement Elicitation:
+   The following requirements were gathered:
+
+   FUNCTIONAL REQUIREMENTS:
+   FR-01: System shall allow users to register and log in.
+   FR-02: System shall display movies/events filtered by selected city.
+   FR-03: System shall show available showtimes per movie/event.
+   FR-04: System shall display a visual seat map with real-time availability.
+   FR-05: System shall allow users to select seats and view total cost.
+   FR-06: System shall process payments through Razorpay.
+   FR-07: System shall confirm bookings and generate e-tickets.
+   FR-08: System shall maintain booking history per user.
+   FR-09: Admin shall have CRUD access to movies, events, theatres, shows.
+   FR-10: Admin shall view booking and revenue reports.
+   FR-11: System shall display trending movies/events on the home page.
+
+   NON-FUNCTIONAL REQUIREMENTS:
+   NFR-01: System shall respond to API requests within 2 seconds under normal load.
+   NFR-02: Passwords shall be hashed using bcrypt before storage.
+   NFR-03: JWT tokens shall expire after 7 days.
+   NFR-04: System shall prevent double-booking through database transactions.
+   NFR-05: The frontend shall be responsive for desktop and tablet screens.
+   NFR-06: The system shall follow RESTful API conventions.
+
+d) Feasibility Assessment: (Detailed in Chapter 6)
+
+
+================================================================================
+               CHAPTER 6: FEASIBILITY STUDY
+================================================================================
+
+6.1 Technical Feasibility
+--------------------------
+Technical feasibility assesses whether the project can be developed using
+available technologies and skills.
+
+FINDINGS:
+
+a) Technology Stack:
+   - React.js (v18): Mature, well-documented open-source library for building
+     SPAs. Widely used in industry. Free license.
+   - Node.js (v18+) + Express.js (v5): Proven backend runtime and framework.
+     Supports async/await for clean database interaction patterns.
+   - MySQL (via XAMPP): Relational database with full ACID compliance.
+     XAMPP provides a free, easy-to-configure local server environment.
+   - Razorpay SDK: Official Node.js SDK available. Test mode supports full
+     payment flow without real money movement.
+   - Vite: Modern, fast build tool for React frontend development.
+
+b) Developer Skill Availability:
+   - JavaScript (full-stack): Both frontend and backend use JavaScript, 
+     reducing context switching and learning overhead.
+   - SQL: Standard relational database skills sufficient for MySQL.
+   - REST API design: Standard computer science curriculum knowledge.
+
+c) Infrastructure:
+   - Development: Any Windows/macOS/Linux laptop with Node.js and XAMPP.
+   - No cloud infrastructure required for development/testing.
+   - Future deployment: Can be hosted on any VPS (DigitalOcean, AWS EC2),
+     with MySQL migrated to a managed database service (AWS RDS).
+
+VERDICT: Technically FEASIBLE.
+
+6.2 Economic Feasibility
+-------------------------
+Economic feasibility evaluates the cost-benefit ratio of the project.
+
+DEVELOPMENT COST ESTIMATE:
++-------------------------------------------+------------------+
+| Item                                      | Cost (INR)       |
++-------------------------------------------+------------------+
+| Development Tools (VS Code, Postman)      | 0 (Free)         |
+| React.js, Node.js, Express.js             | 0 (Open Source)  |
+| MySQL + XAMPP                             | 0 (Free)         |
+| Razorpay Test Account                     | 0 (Free)         |
+| Vite Build Tool                           | 0 (Free)         |
+| GitHub (Version Control)                  | 0 (Free)         |
+| Personnel (academic project)              | 0 (Self-developed)|
+| Internet & Electricity (≈4 months)        | ≈ 4,000          |
+| Domain & Hosting (future, if deployed)    | ≈ 5,000/year     |
++-------------------------------------------+------------------+
+| TOTAL DEVELOPMENT COST (bare minimum)     | ≈ 4,000          |
++-------------------------------------------+------------------+
+
+BENEFIT ESTIMATE (if deployed commercially):
+- Convenience fee of ₹20-30 per ticket × 500 bookings/month = ₹10,000-15,000/month
+- B2B licensing fee from theatres: ₹5,000-10,000/month per theatre.
+- Advertisement revenue from movie studios.
+
+Break-even point (hypothetical): 1-2 months of operation at modest scale.
+
+VERDICT: Economically FEASIBLE.
+
+6.3 Operational Feasibility
+----------------------------
+Operational feasibility determines whether the system will be accepted and
+used effectively by its intended operators and end-users.
+
+USER ACCEPTANCE:
+a) The system is a web application accessible from standard browsers (Chrome,
+   Firefox, Edge) — no installation required for users.
+b) The UI follows familiar patterns from popular booking platforms, minimizing
+   the learning curve.
+c) The city-selection mechanism is intuitive and familiar to Indian users.
+
+ADMIN ACCEPTANCE:
+a) The admin panel provides a clean tabular interface for CRUD operations.
+b) Revenue and booking reports are clearly laid out without requiring 
+   any specialized training.
+c) The admin workflow (add movie → add show → assign theatre) mirrors
+   the real-world operational process.
+
+TRAINING REQUIREMENTS:
+- End users: Zero training needed (intuitive self-service UI).
+- Admin users: Minimal training via the User/Operational Manual (Chapter 11.11).
+
+SECURITY:
+- Passwords are bcrypt-hashed.
+- JWT protects all private API routes.
+- Admin routes require both a valid JWT AND an 'admin' role claim.
+- Razorpay signature verification prevents payment tampering.
+
+VERDICT: Operationally FEASIBLE.
+
+
+
+================================================================================
+               CHAPTER 7: SYSTEM PLANNING
+================================================================================
+
+7.1 Project Timeline
+---------------------
+The development of QwikShow was planned across 10 weeks (approximately
+2.5 months), following an iterative development approach. The planned
+milestone breakdown is as follows:
+
++--------+--------------------------------------------------+-----------+
+| Phase  | Scope                                            | Timeline  |
++--------+--------------------------------------------------+-----------+
+| 1      | Environment Setup, DB Schema Design, Auth API    | Week 1-2  |
+| 2      | Home Page, Movie/Event Detail, Shows, Trailer    | Week 3-4  |
+| 3      | Seat Map UI, Booking Engine, Razorpay Payment    | Week 5-6  |
+| 4      | Admin Panel: CRUD + Revenue Reports              | Week 7-8  |
+| 5      | Polish, Bug Fixes, Testing, Documentation        | Week 9-10 |
++--------+--------------------------------------------------+-----------+
+
+7.2 Team Structure
+-------------------
+Role                       | Responsibility
+---------------------------|-----------------------------------------------------
+Developer (Full Stack)     | Database design, REST API, React frontend, testing
+Project Guide              | Requirement review, technical guidance, evaluation
+Tester (Self)              | Manual testing, Postman API testing, UI testing
+
+7.3 Tools & Environment Setup
+------------------------------
+a) Code Editor    : Visual Studio Code (VS Code) with extensions —
+                    ESLint, Prettier, Tailwind IntelliSense
+b) Version Control: Git + GitHub (private repository)
+c) API Testing    : Postman (REST Client)
+d) Browser        : Google Chrome (DevTools for debugging)
+e) Local Server   : XAMPP (Apache + MySQL)
+f) Terminal       : PowerShell / Git Bash
+
+7.4 Risk Analysis
+------------------
++-----------------------------------+----------+---------------------------+
+| Risk                              | Impact   | Mitigation                |
++-----------------------------------+----------+---------------------------+
+| Double-booking race condition     | High     | MySQL ACID transactions    |
+| Payment verification failure      | High     | HMAC-SHA256 signature check|
+| JWT token compromise              | Medium   | Short expiry + HTTPS (prod)|
+| Database schema changes mid-dev   | Medium   | Versioned init_db.js script|
+| Razorpay API policy changes       | Low      | Pinned SDK version         |
+| Scope creep (feature bloat)       | Medium   | Strict MVP scope in brief  |
++-----------------------------------+----------+---------------------------+
+
+
+================================================================================
+     CHAPTER 8: METHODOLOGY, SYSTEM IMPLEMENTATION & HARDWARE/SOFTWARE USED
+================================================================================
+
+8.1 Development Methodology
+-----------------------------
+QwikShow follows an Iterative & Incremental Development Model, which is a
+hybrid between the Waterfall Model and Agile Approach. This was chosen because:
+
+a) Requirements were well-defined upfront (academic project with a brief), 
+   making pure Agile sprints less necessary.
+b) However, UI/UX details and API contracts evolved during development, 
+   requiring iterative refinement.
+c) Each iteration delivered a working vertical slice of the application 
+   (e.g., Iteration 1 = working Auth API + Login/Register UI).
+
+Iterations followed the pattern:
+  Plan → Design → Code → Test → Review → (next iteration)
+
+8.2 System Implementation
+--------------------------
+
+8.2.1 Database Layer (MySQL via XAMPP)
+---------------------------------------
+The database is initialized via init_db.js, which creates all 9 tables
+and seeds default city data. The schema uses:
+- AUTO_INCREMENT primary keys on all tables.
+- FOREIGN KEY constraints to enforce referential integrity.
+- ENUM types for controlled-value columns (role, status, booking status).
+- BOOLEAN flags for is_trending and is_booked.
+
+Tables created:
+  1. users         — Registered user accounts
+  2. cities        — Supported cities (Mumbai, Delhi, Bangalore, etc.)
+  3. theatres      — Theatre details with row/seat configuration per city
+  4. movies        — Movie details, posters, trailers, trending flag
+  5. events        — Event details, category, posters, trending flag
+  6. shows         — Links movie/event + theatre + date/time + price
+  7. seats         — Auto-generated seat labels per show (A1, A2... H10)
+  8. bookings      — Booking records per user + show + payment details
+  9. booking_seats — Junction table: maps bookings to specific seats
+
+Connection Pool (config/db.js):
+  mysql2 is used with a connection pool (createPool) supporting async/await
+  via the promise() wrapper. Environment variables from .env configure:
+  DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, PORT.
+
+8.2.2 Backend API Layer (Node.js + Express.js)
+------------------------------------------------
+The server (server.js) registers the following route modules:
+
+  /api/auth           → auth.js         (login, register)
+  /api/movies         → movies.js       (list movies, get by city)
+  /api/events         → events.js       (list events)
+  /api/cities         → cities.js       (list available cities)
+  /api/shows          → shows.js        (show details, seat map)
+  /api/bookings       → bookings.js     (user bookings: JWT protected)
+  /api/payment        → payment.js      (Razorpay order + verify)
+  /api/admin/movies   → admin/movies.js (CRUD: admin only)
+  /api/admin/events   → admin/events.js (CRUD: admin only)
+  /api/admin/theatres → admin/theatres.js (CRUD: admin only)
+  /api/admin/shows    → admin/shows.js  (CRUD: admin only)
+  /api/admin/reports  → admin/reports.js (revenue + booking stats)
+  /api/health         → inline (server health check)
+
+Middleware Stack:
+  - cors()              : Allows Cross-Origin requests from React (port 5173)
+  - express.json()      : Parses JSON request bodies
+  - verifyToken()       : Validates JWT from Authorization header
+  - verifyAdmin()       : Checks user role === 'admin' after token verification
+
+Key Libraries Used (Backend):
+  - express      v5.2.1   : Web framework / routing
+  - mysql2       v3.18.2  : MySQL driver (async/await support)
+  - bcrypt       v6.0.0   : Password hashing
+  - jsonwebtoken v9.0.3   : JWT sign/verify
+  - razorpay     v2.9.6   : Payment gateway SDK
+  - dotenv       v17.3.1  : Environment variable management
+  - cors         v2.8.6   : Cross-origin resource sharing
+  - axios        v1.13.6  : HTTP client (used for TMDb API integration)
+  - crypto       v1.0.1   : HMAC-SHA256 for Razorpay signature verification
+
+8.2.3 Frontend Application (React.js + Vite)
+---------------------------------------------
+The frontend is a Single Page Application built with React 18 and bundled
+with Vite (a fast ES module-based build tool).
+
+Application Entry Point:
+  main.jsx → renders <App /> inside React.StrictMode.
+
+Router Configuration (App.jsx):
+  React Router v6 with BrowserRouter handles all client-side navigation.
+
+  PUBLIC ROUTES:
+    /                   → Home (city-filtered trending + movies + events)
+    /movies             → AllMovies (full movie listing)
+    /movies/:id         → MovieDetail (poster, trailer, cast, showtimes)
+    /events             → AllEvents (full event listing)
+    /events/:id         → EventDetail (event info + shows)
+    /login              → Login page
+    /register           → Register page
+
+  PROTECTED ROUTES (JWT required via PrivateRoute):
+    /shows/:id/seats    → SeatSelection (visual seat grid)
+    /booking/confirm    → BookingConfirm (order summary + Razorpay)
+    /my-bookings        → MyBookings (user booking history)
+
+  ADMIN ROUTES (admin role required via AdminRoute):
+    /admin              → Admin Dashboard (stats)
+    /admin/movies       → ManageMovies (CRUD)
+    /admin/events       → ManageEvents (CRUD)
+    /admin/theatres     → ManageTheatres (CRUD)
+    /admin/shows        → ManageShows (CRUD)
+
+Context Providers:
+  - AuthContext  : Stores JWT token, user object, login(), logout() methods.
+                   Token persisted in localStorage for session continuity.
+  - CityContext  : Stores selectedCity state. Persisted in localStorage 
+                   so city selection survives page refreshes.
+
+Key Libraries Used (Frontend):
+  - react            v18     : Core UI library
+  - react-dom        v18     : DOM rendering
+  - react-router-dom v6      : Client-side routing
+  - axios                    : HTTP client for API calls
+  - react-hot-toast          : In-app toast notifications
+  - vite             (dev)   : Build tool and dev server (port 5173)
+
+Styling:
+  - index.css        : Global design tokens, typography, utility classes
+  - Component-level CSS files per page for scoped styles
+  - Dark-themed cinema aesthetic with accent colors
+
+8.3 Hardware Requirements
+--------------------------
+MINIMUM (Development):
+  - Processor  : Intel Core i3 / AMD Ryzen 3 or equivalent
+  - RAM        : 8 GB (16 GB recommended for smooth Dev + XAMPP + Browser)
+  - Storage    : 5 GB free disk space (for Node modules, XAMPP, project)
+  - OS         : Windows 10/11, macOS 12+, or Ubuntu 20.04+
+  - Network    : Internet connection (for npm packages, Razorpay test API)
+
+MINIMUM (Deployment Server):
+  - Processor  : 1 vCPU (2 vCPU recommended)
+  - RAM        : 1 GB (2 GB recommended)
+  - Storage    : 20 GB SSD
+  - OS         : Ubuntu 20.04 LTS
+
+8.4 Software Requirements
+--------------------------
+DEVELOPMENT ENVIRONMENT:
++--------------------------------+------------------+------------------------+
+| Software                       | Version          | Purpose                |
++--------------------------------+------------------+------------------------+
+| Node.js                        | v18+             | Backend runtime        |
+| npm                            | v9+              | Package management     |
+| XAMPP                          | v8.2             | Local Apache + MySQL   |
+| Visual Studio Code             | Latest           | Code editor            |
+| Google Chrome                  | Latest           | Browser + DevTools     |
+| Postman                        | Latest           | API testing            |
+| Git                            | Latest           | Version control        |
+| GitHub                         | -                | Remote repository      |
++--------------------------------+------------------+------------------------+
+
+RUNTIME DEPENDENCIES (AUTO-INSTALLED VIA NPM):
+[Backend] express, mysql2, bcrypt, jsonwebtoken, razorpay, dotenv, cors, axios
+[Frontend] react, react-dom, react-router-dom, axios, react-hot-toast, vite
+
+
+================================================================================
+               CHAPTER 9: SYSTEM MAINTENANCE & EVALUATION
+================================================================================
+
+9.1 Types of Maintenance
+-------------------------
+Software maintenance activities for QwikShow are categorized as:
+
+a) Corrective Maintenance:
+   Fixing bugs identified during or after testing. For example:
+   - Resolving seat availability count mismatch after failed payment.
+   - Handling edge cases in JWT expiry (auto-logout).
+
+b) Adaptive Maintenance:
+   Adapting the system to changing environments. For example:
+   - Upgrading Node.js to a newer LTS version.
+   - Updating Razorpay SDK if their API version changes.
+   - Migrating from XAMPP to a cloud MySQL instance (AWS RDS).
+
+c) Perfective Maintenance:
+   Enhancing performance and usability. For example:
+   - Adding seat-level search filtering for large theatres.
+   - Implementing Redis-based seat locking for high-concurrency scenarios.
+   - Adding email notifications post-booking.
+
+d) Preventive Maintenance:
+   Code refactoring and documentation updates to prevent future issues.
+   - Regular dependency version audits (npm audit).
+   - Database query optimization with EXPLAIN ANALYZE.
+
+9.2 System Evaluation Criteria
+--------------------------------
+The following criteria are used to evaluate QwikShow's performance:
+
++-----------------------------------------+------------------------------+
+| Criterion                               | Target / Observation         |
++-----------------------------------------+------------------------------+
+| API response time (avg)                 | < 500ms for standard queries |
+| Payment verification success rate       | 100% (test mode)             |
+| Double-booking prevention               | Zero double-bookings (tested)|
+| JWT token validation accuracy           | 100%                         |
+| Page load time (frontend)               | < 2 seconds (Vite build)     |
+| Admin panel CRUD completeness           | All 4 entities (movie/event/ |
+|                                         | theatre/show) — fully tested |
+| Seat stock consistency post-booking     | Verified via DB queries      |
++-----------------------------------------+------------------------------+
+
+9.3 Future Enhancements
+------------------------
+Version 2.0 Roadmap:
+  - Real-time seat locking using Socket.io (prevent seat ghosting)
+  - Email/SMS booking confirmations (Nodemailer / Twilio)
+  - Razorpay live mode for production deployment
+  - Ticket cancellation & refund workflow
+  - Loyalty points system
+  - Progressive Web App (PWA) support for mobile browsers
+  - Multi-language support (Hindi, Tamil, Telugu)
+  - AI-powered movie recommendation engine
+
+
+================================================================================
+               CHAPTER 10: COST AND BENEFIT ANALYSIS
+================================================================================
+
+10.1 Cost Analysis
+-------------------
+(a) Development Costs (One-Time):
++---------------------------------------+------------------+
+| Item                                  | Estimated Cost   |
++---------------------------------------+------------------+
+| Software licenses (all open source)   | ₹ 0              |
+| Developer time (academic project)     | ₹ 0 (self-work)  |
+| Internet & utilities (4 months)       | ₹ 4,000          |
+| Laptop / workstation (already owned)  | ₹ 0 (sunk cost)  |
+| Documentation & printing              | ₹ 500            |
++---------------------------------------+------------------+
+| TOTAL DEVELOPMENT COST                | ₹ 4,500          |
++---------------------------------------+------------------+
+
+(b) Operational Costs (Recurring, if deployed):
++---------------------------------------+------------------+
+| Item                                  | Estimated Cost   |
++---------------------------------------+------------------+
+| VPS Hosting (2vCPU, 4GB RAM)          | ₹ 1,200/month    |
+| Managed MySQL (AWS RDS t3.micro)      | ₹ 800/month      |
+| Domain name (.com)                    | ₹ 1,000/year     |
+| SSL Certificate (Let's Encrypt)       | ₹ 0 (free)       |
+| Razorpay transaction fee              | 2% per transaction|
++---------------------------------------+------------------+
+| TOTAL MONTHLY OPERATIONAL COST        | ≈ ₹ 2,000/month  |
++---------------------------------------+------------------+
+
+10.2 Benefit Analysis
+----------------------
+(a) Tangible Benefits:
+  - Convenience fee revenue: ₹20-30 × [bookings/month]
+  - B2B SaaS licensing: ₹5,000-15,000/theatre/month
+  - Advertising from movie studios / event promoters
+
+(b) Intangible Benefits:
+  - Elimination of manual queue management at theatres.
+  - Reduction in booking errors and customer complaints.
+  - Real-time data analytics for theatre owners and event managers.
+  - 24x7 self-service availability for end users.
+  - Improved customer satisfaction and retention.
+
+10.3 Break-Even Analysis (Hypothetical)
+-----------------------------------------
+  Total Development Cost    = ₹ 4,500
+  Monthly Operational Cost  = ₹ 2,000
+  Revenue from 1 theatre    = ₹ 5,000/month (SaaS fee)
+  Net Revenue / Month       = ₹ 3,000
+  Break-even Period         = ≈ 2 months
+
+
+
+================================================================================
+               CHAPTER 7: SYSTEM PLANNING
+================================================================================
+
+7.1 Project Timeline
+---------------------
+The development of QwikShow was planned across 10 weeks (approximately
+2.5 months), following an iterative development approach:
+
+Phase 1 (Week 1-2)  : Environment Setup, DB Schema Design, Auth API
+Phase 2 (Week 3-4)  : Home Page, Movie/Event Detail, Shows, Trailer embed
+Phase 3 (Week 5-6)  : Seat Map UI, Booking Engine, Razorpay Payment
+Phase 4 (Week 7-8)  : Admin Panel – CRUD + Revenue Reports
+Phase 5 (Week 9-10) : Polish, Bug Fixes, Testing, Documentation
+
+7.2 Tools & Environment Setup
+------------------------------
+Code Editor    : Visual Studio Code (VS Code)
+Version Control: Git + GitHub
+API Testing    : Postman
+Browser        : Google Chrome (DevTools)
+Local Server   : XAMPP (Apache + MySQL)
+Terminal       : PowerShell / Git Bash
+
+7.3 Risk Analysis
+------------------
+Risk                               | Impact  | Mitigation
+-----------------------------------|---------|----------------------------------
+Double-booking race condition      | High    | MySQL ACID transactions
+Payment verification failure       | High    | HMAC-SHA256 signature check
+JWT token compromise               | Medium  | Short expiry + HTTPS (production)
+Database schema changes mid-dev    | Medium  | Versioned init_db.js script
+Razorpay API policy changes        | Low     | Pinned SDK version
+Scope creep                        | Medium  | Strict MVP scope in project brief
+
+
+================================================================================
+     CHAPTER 8: METHODOLOGY, SYSTEM IMPLEMENTATION & HARDWARE/SOFTWARE USED
+================================================================================
+
+8.1 Development Methodology — Iterative & Incremental Model
+------------------------------------------------------------
+QwikShow follows Iterative & Incremental Development. Requirements were
+well-defined upfront (academic brief), but UI/UX and API contracts evolved
+during development, requiring iterative refinement. Each iteration delivered
+a working vertical slice (e.g., Iteration 1 = Auth API + Login/Register UI).
+
+Iteration cycle: Plan → Design → Code → Test → Review → (next iteration)
+
+8.2 System Implementation
+--------------------------
+
+8.2.1 Database Layer (MySQL via XAMPP)
+---------------------------------------
+The database is initialized via init_db.js, which creates all 9 tables and
+seeds default city data. Schema design highlights:
+  - AUTO_INCREMENT primary keys on all tables
+  - FOREIGN KEY constraints for referential integrity
+  - ENUM types for role, status, booking status
+  - BOOLEAN flags for is_trending and is_booked
+
+Tables:
+  1. users         - user_id, name, email, password_hash, role, created_at
+  2. cities        - city_id, name
+  3. theatres      - theatre_id, name, address, city_id, total_rows, seats_per_row
+  4. movies        - movie_id, title, genre, language, description, cast_info,
+                     poster_url, trailer_url, release_date, is_trending, status
+  5. events        - event_id, title, category, description, poster_url,
+                     trailer_url, is_trending
+  6. shows         - show_id, movie_id, event_id, theatre_id, show_date,
+                     show_time, price, available_seats
+  7. seats         - seat_id, show_id, seat_label (A1...H10), is_booked
+  8. bookings      - booking_id, user_id, show_id, total_amount, payment_id,
+                     status (pending/confirmed/cancelled), booked_at
+  9. booking_seats - id, booking_id, seat_id  [Junction/Bridge table]
+
+8.2.2 Backend API Layer (Node.js + Express.js)
+------------------------------------------------
+server.js registers the following route modules:
+
+  /api/auth              → auth.js           (login, register)
+  /api/movies            → movies.js         (list by city, get details)
+  /api/events            → events.js         (list, get details)
+  /api/cities            → cities.js         (list all cities)
+  /api/shows             → shows.js          (show info + seat map)
+  /api/bookings          → bookings.js       (create + view, JWT protected)
+  /api/payment           → payment.js        (Razorpay order + verify)
+  /api/admin/movies      → admin/movies.js   (CRUD, admin only)
+  /api/admin/events      → admin/events.js   (CRUD, admin only)
+  /api/admin/theatres    → admin/theatres.js (CRUD, admin only)
+  /api/admin/shows       → admin/shows.js    (CRUD, admin only)
+  /api/admin/reports     → admin/reports.js  (revenue + booking stats)
+  /api/health            → inline health check
+
+Middleware Stack:
+  cors()          : Cross-origin requests from React frontend (port 5173)
+  express.json()  : JSON body parsing
+  verifyToken()   : JWT validation (Authorization header)
+  verifyAdmin()   : Checks role === 'admin' after token verification
+
+Backend Dependencies:
+  express v5.2.1, mysql2 v3.18.2, bcrypt v6.0.0, jsonwebtoken v9.0.3,
+  razorpay v2.9.6, dotenv v17.3.1, cors v2.8.6, axios v1.13.6, crypto v1.0.1
+
+8.2.3 Frontend Application (React.js + Vite)
+---------------------------------------------
+SPA built with React 18, bundled via Vite (ES module-based).
+
+Public Routes:
+  /                → Home (trending banner + city-filtered movies & events)
+  /movies          → AllMovies (full listing)
+  /movies/:id      → MovieDetail (poster, trailer, cast, showtimes)
+  /events          → AllEvents
+  /events/:id      → EventDetail
+  /login           → Login
+  /register        → Register
+
+Protected Routes (JWT required — PrivateRoute guard):
+  /shows/:id/seats     → SeatSelection (visual seat grid: green/red/yellow)
+  /booking/confirm     → BookingConfirm (order summary + Razorpay popup)
+  /my-bookings         → MyBookings (booking history + e-tickets)
+
+Admin Routes (admin role + AdminRoute guard):
+  /admin               → Dashboard (stats overview)
+  /admin/movies        → ManageMovies (CRUD + TMDb import)
+  /admin/events        → ManageEvents (CRUD)
+  /admin/theatres      → ManageTheatres (CRUD + row/seat config)
+  /admin/shows         → ManageShows (link movie/event + theatre + datetime)
+
+Context Providers:
+  AuthContext : JWT token, user object, login(), logout() — persisted in localStorage
+  CityContext : selectedCity state — persisted in localStorage
+
+Frontend Dependencies:
+  react v18, react-dom, react-router-dom v6, axios, react-hot-toast, vite
+
+8.3 Hardware Requirements
+--------------------------
+Development Minimum:
+  Processor : Intel Core i3 / AMD Ryzen 3
+  RAM       : 8 GB (16 GB recommended)
+  Storage   : 5 GB free space
+  OS        : Windows 10/11 | macOS 12+ | Ubuntu 20.04+
+  Network   : Internet connection
+
+Deployment Server (Minimum):
+  Processor : 1-2 vCPU | RAM: 2 GB | Storage: 20 GB SSD | OS: Ubuntu 20.04
+
+8.4 Software Requirements
+--------------------------
+Software           | Version  | Purpose
+-------------------|----------|-----------------------------------------
+Node.js            | v18+     | Backend JavaScript runtime
+npm                | v9+      | Package management
+XAMPP              | v8.2     | Local Apache + MySQL server
+Visual Studio Code | Latest   | Code editor
+Google Chrome      | Latest   | Browser + DevTools
+Postman            | Latest   | REST API testing
+Git                | Latest   | Version control
+GitHub             | -        | Remote repository hosting
+
+
+================================================================================
+               CHAPTER 9: SYSTEM MAINTENANCE & EVALUATION
+================================================================================
+
+9.1 Types of Maintenance
+-------------------------
+a) Corrective Maintenance:
+   Fixing bugs found during/after testing — e.g., seat count mismatch after
+   failed Razorpay payment, JWT expiry edge case handling.
+
+b) Adaptive Maintenance:
+   Adapting to environment changes — e.g., Node.js LTS upgrade, Razorpay SDK
+   updates, migrating from XAMPP MySQL to AWS RDS for production.
+
+c) Perfective Maintenance:
+   Enhancements — real-time seat locking (Socket.io), Redis caching,
+   email/SMS notifications post-booking.
+
+d) Preventive Maintenance:
+   Code audits, npm dependency scans (npm audit), DB query optimization
+   using EXPLAIN ANALYZE.
+
+9.2 System Evaluation
+----------------------
+Criterion                             | Target / Observed
+--------------------------------------|-----------------------------------
+API response time (average)           | < 500ms for standard queries
+Payment verification success rate     | 100% (test mode)
+Double-booking prevention             | Zero double-bookings (tested)
+JWT validation accuracy               | 100%
+Page load time (frontend, Vite)       | < 2 seconds
+Admin CRUD completeness               | 4 entities fully tested
+Seat stock consistency post-booking   | Verified via direct DB queries
+
+9.3 Future Enhancements
+------------------------
+v2.0 Roadmap:
+  - Real-time seat locking via Socket.io
+  - Email/SMS booking confirmations (Nodemailer / Twilio)
+  - Razorpay live mode for production
+  - Ticket cancellation & refund workflow
+  - Loyalty/rewards points system
+  - Progressive Web App (PWA) support
+  - Multi-language UI (Hindi, Tamil, Telugu)
+  - AI-powered movie recommendation engine
+
+
+================================================================================
+               CHAPTER 10: COST AND BENEFIT ANALYSIS
+================================================================================
+
+10.1 Cost Analysis
+-------------------
+One-Time Development Costs:
+  Software licenses (all open source)  : Rs. 0
+  Developer time (academic project)    : Rs. 0 (self-work)
+  Internet & utilities (4 months)      : Rs. 4,000
+  Documentation & printing             : Rs. 500
+  TOTAL                                : Rs. 4,500
+
+Recurring Operational Costs (if deployed commercially):
+  VPS Hosting (2vCPU, 4GB RAM)         : Rs. 1,200/month
+  Managed MySQL (AWS RDS t3.micro)     : Rs. 800/month
+  Domain name (.com)                   : Rs. 1,000/year
+  SSL Certificate (Let's Encrypt)      : Rs. 0 (free)
+  Razorpay transaction fee             : 2% per transaction
+  TOTAL MONTHLY                        : ~Rs. 2,000/month
+
+10.2 Benefit Analysis
+----------------------
+Tangible Benefits:
+  - Convenience fee: Rs. 20-30 per ticket
+  - B2B SaaS licensing: Rs. 5,000-15,000/theatre/month
+  - Advertising revenue from studios & event promoters
+
+Intangible Benefits:
+  - Eliminates manual queue management at theatres
+  - Reduces booking errors and customer complaints
+  - Real-time analytics for theatre owners
+  - 24x7 self-service availability for end users
+  - Improved customer satisfaction and retention
+
+Break-Even (Hypothetical):
+  Development Cost   = Rs. 4,500
+  Monthly Net Revenue (1 theatre SaaS) = Rs. 3,000
+  Break-even Period  = ~2 months
+
+
+
+================================================================================
+          CHAPTER 11: DETAILED LIFE CYCLE OF THE PROJECT
+================================================================================
+
+11.1 DATA FLOW DIAGRAM (DFD)
+================================================================================
+
+-- LEVEL 0 DFD (Context Diagram) --
+
+                  +------------------+
+    User -------> |                  | ---------> Booking Confirmation
+                  |   QwikShow       |
+    Admin ------> |   System         | ---------> Reports / Stats
+                  |                  |
+    Razorpay ---> |                  | ---------> Payment Status
+                  +------------------+
+
+-- LEVEL 1 DFD --
+
++----------+    Browse Movies/Events    +------------------+
+|          | -------------------------> |  1.0             |
+|          |                           |  Browse &        |
+|  USER    |    City Filter            |  Search          |
+|          | ========================> |                  |
+|          |                           +------------------+
+|          |                                   |
+|          |    Show Details Request    +------------------+
+|          | -------------------------> |  2.0             |
+|          |                           |  Show &          |
+|          |                           |  Seat Mgmt       |
+|          |                           +------------------+
+|          |                                   |
+|          |    Select Seats            +------------------+
+|          | -------------------------> |  3.0             |
+|          |                           |  Booking &       |
+|          |    Payment Info           |  Payment         |
+|          | -------------------------> |  Engine          |
+|          |                           +------------------+
+|          |                                   |
+|          | <-- E-Ticket / Confirmation -------+
++----------+
+
++----------+    CRUD Operations         +------------------+
+|          | -------------------------> |  4.0             |
+|  ADMIN   |                           |  Content         |
+|          |    Revenue Reports        |  Management      |
+|          | <------------------------ |  & Reporting     |
++----------+                           +------------------+
+
+Data Stores Used:
+  D1 - users          D5 - events
+  D2 - cities         D6 - shows
+  D3 - theatres       D7 - seats
+  D4 - movies         D8 - bookings / booking_seats
+
+
+11.2 ENTITY-RELATIONSHIP (ER) DIAGRAM
+================================================================================
+
+ENTITIES AND ATTRIBUTES:
+--------------------------
+USERS           : user_id (PK), name, email, password_hash, role, created_at
+CITIES          : city_id (PK), name
+THEATRES        : theatre_id (PK), name, address, city_id (FK), total_rows,
+                  seats_per_row
+MOVIES          : movie_id (PK), title, genre, language, description, cast_info,
+                  poster_url, trailer_url, release_date, is_trending, status
+EVENTS          : event_id (PK), title, category, description, poster_url,
+                  trailer_url, is_trending
+SHOWS           : show_id (PK), movie_id (FK), event_id (FK), theatre_id (FK),
+                  show_date, show_time, price, available_seats
+SEATS           : seat_id (PK), show_id (FK), seat_label, is_booked
+BOOKINGS        : booking_id (PK), user_id (FK), show_id (FK), total_amount,
+                  payment_id, status, booked_at
+BOOKING_SEATS   : id (PK), booking_id (FK), seat_id (FK)
+
+RELATIONSHIPS:
+--------------
+THEATRES  ----BELONGS_TO----> CITIES          (Many-to-One)
+MOVIES    ----SCREENED_IN---> SHOWS           (One-to-Many)
+EVENTS    ----SCHEDULED_IN--> SHOWS           (One-to-Many)
+THEATRES  ----HOSTS---------> SHOWS           (One-to-Many)
+SHOWS     ----HAS-----------> SEATS           (One-to-Many)
+USERS     ----MAKES---------> BOOKINGS        (One-to-Many)
+SHOWS     ----COVERED_BY----> BOOKINGS        (One-to-Many)
+BOOKINGS  ----INCLUDES------> BOOKING_SEATS   (One-to-Many)
+SEATS     ----RESERVED_IN---> BOOKING_SEATS   (Many-to-Many via junction)
+
+ER DIAGRAM (Textual Notation):
+-------------------------------
+
+CITIES ||--o{ THEATRES      : "located in"
+THEATRES ||--o{ SHOWS       : "hosts"
+MOVIES ||--o{ SHOWS         : "screened as"
+EVENTS ||--o{ SHOWS         : "scheduled as"
+SHOWS ||--o{ SEATS          : "has seats"
+USERS ||--o{ BOOKINGS       : "makes"
+SHOWS ||--o{ BOOKINGS       : "booked via"
+BOOKINGS ||--o{ BOOKING_SEATS : "contains"
+SEATS ||--o{ BOOKING_SEATS  : "reserved in"
+
+
+11.3 USE CASE DIAGRAM
+================================================================================
+
+ACTORS: Guest (Unauthenticated), Registered User, Administrator
+
+GUEST USE CASES:
+  UC-01: Browse Home Page (trending movies & events)
+  UC-02: Browse Movies by City
+  UC-03: View Movie Details (poster, cast, trailer)
+  UC-04: Browse Events by City
+  UC-05: View Event Details
+  UC-06: Register Account
+  UC-07: Login
+
+REGISTERED USER USE CASES (extends Guest):
+  UC-08: Select Show & View Seat Map
+  UC-09: Select/Deselect Seats
+  UC-10: View Order Summary
+  UC-11: Make Payment via Razorpay
+  UC-12: View Booking Confirmation / E-Ticket
+  UC-13: View My Booking History
+  UC-14: Logout
+
+ADMINISTRATOR USE CASES:
+  UC-15: Admin Login
+  UC-16: View Admin Dashboard (quick stats)
+  UC-17: Add / Edit / Delete Movie
+  UC-18: Import Movie from TMDb API
+  UC-19: Add / Edit / Delete Event
+  UC-20: Add / Edit / Delete Theatre (configure rows & seats)
+  UC-21: Add / Edit / Delete Show (link movie + theatre + date/time + price)
+  UC-22: View Booking Reports (bookings by movie/event)
+  UC-23: View Revenue Reports (revenue by city)
+  UC-24: Toggle Trending Flag on Movie / Event
+
+
+11.4 ACTIVITY DIAGRAM
+================================================================================
+
+-- ACTIVITY DIAGRAM: USER TICKET BOOKING FLOW --
+
+[START]
+   |
+   v
+[User visits QwikShow Home Page]
+   |
+   v
+[Select City from dropdown]
+   |
+   v
+[Browse Movies / Events (filtered by city)]
+   |
+   v
+[Click on a Movie / Event]
+   |
+   v
+[View Detail Page: Poster + Trailer + Cast + Showtimes]
+   |
+   v
+[Select a Showtime]
+   |-- Not logged in? --> [Redirect to Login] --> [Login / Register]
+   |                                                      |
+   v (logged in)                                          |
+[View Seat Map] <------------------------------------------+
+   |
+   v
+[Select Available Seats (highlighted in yellow)]
+   |
+   v
+[View Order Summary (seats + price + convenience fee)]
+   |
+   v
+[Click "Proceed to Payment"]
+   |
+   v
+[Razorpay Checkout Popup opens]
+   |
+   |-- User cancels? --> [Return to Seat Selection]
+   |
+   v (payment successful)
+[Frontend sends payment IDs to backend for verification]
+   |
+   v
+[Backend verifies HMAC-SHA256 signature]
+   |
+   |-- Verification fails? --> [Show Error Toast] --> [END]
+   |
+   v (verified)
+[Backend creates booking record (DB Transaction)]
+   |
+   v
+[Seats marked as is_booked = TRUE]
+   |
+   v
+[Booking Confirmation Page shown — E-Ticket displayed]
+   |
+[END]
+
+-- ACTIVITY DIAGRAM: ADMIN CONTENT MANAGEMENT --
+
+[START]
+   |
+   v
+[Admin Login]
+   |
+   v
+[Admin Dashboard — View Quick Stats]
+   |
+   v
+[Choose: Movies / Events / Theatres / Shows]
+   |
+   +--[Manage Movies]-------> [View List] -> [Add/Edit/Delete] -> [Save]
+   |
+   +--[Manage Events]-------> [View List] -> [Add/Edit/Delete] -> [Save]
+   |
+   +--[Manage Theatres]-----> [View List] -> [Add/Configure/Delete] -> [Save]
+   |
+   +--[Manage Shows]--------> [View List] -> [Link Movie+Theatre+Time] -> [Save]
+   |
+   +--[View Reports]--------> [Booking Summary / Revenue by City]
+   |
+[END]
+
+
+11.5 SEQUENCE DIAGRAM
+================================================================================
+
+-- SEQUENCE DIAGRAM: USER LOGIN --
+
+User Browser      Frontend (React)     Backend (Node/Express)    MySQL
+     |                   |                       |                  |
+     |---(click Login)-->|                       |                  |
+     |                   |---POST /api/auth/login-->               |
+     |                   |                       |--SELECT user-->  |
+     |                   |                       |<--user row----   |
+     |                   |                       |--bcrypt.compare--|
+     |                   |                       |--jwt.sign()---   |
+     |                   |<---{ token, user }-----|                 |
+     |                   |--store in localStorage|                  |
+     |<--(redirect Home)-|                       |                  |
+
+-- SEQUENCE DIAGRAM: SEAT BOOKING + PAYMENT --
+
+Browser     React Frontend      Node Backend         MySQL       Razorpay
+   |              |                   |                |              |
+   |--Select seats|                   |                |              |
+   |              |--POST /api/payment/create-order--> |              |
+   |              |                   |----------------razorpay.orders.create-->
+   |              |                   |<-----{ order_id, amount }------------|
+   |              |<--{ order_id }--  |                |              |
+   |              |--open Razorpay popup------------------------------>|
+   |<-test payment|                   |                |              |
+   |              |<-payment_id, order_id, signature---|              |
+   |              |--POST /api/payment/verify--------> |              |
+   |              |                   |--verify HMAC signature        |
+   |              |                   |--BEGIN TRANSACTION-> |        |
+   |              |                   |--INSERT bookings---> |        |
+   |              |                   |--UPDATE seats (booked=TRUE)-> |
+   |              |                   |--COMMIT TRANSACTION->|        |
+   |              |<--{ booking_id }--|                |              |
+   |<--Confirm page|                  |                |              |
+
+
+11.6 INPUT AND OUTPUT SCREEN DESIGN
+================================================================================
+
+SCREEN 1: HOME PAGE
+  Input  : City selection from dropdown (stored in CityContext)
+  Output : Trending banner carousel, filtered Movie cards, Event cards,
+           Navbar with city selector and user login status
+
+SCREEN 2: LOGIN PAGE
+  Input  : Email (text input), Password (password input), Submit button
+  Output : JWT token stored in localStorage, redirect to Home; or
+           Error toast on invalid credentials
+
+SCREEN 3: REGISTER PAGE
+  Input  : Name, Email, Password, Confirm Password
+  Output : New user record created in DB; redirect to Login; or
+           Validation errors (duplicate email, password mismatch)
+
+SCREEN 4: MOVIE DETAIL PAGE
+  Input  : Movie ID from URL params (/movies/:id)
+  Output : Movie poster, title, genre, language, description, cast list,
+           YouTube trailer (embedded iframe), list of shows filtered by city
+
+SCREEN 5: SEAT SELECTION PAGE
+  Input  : Show ID from URL params (/shows/:id/seats)
+           User clicks on available seats (toggle selection)
+  Output : Grid of seats:
+             GREEN  = Available
+             RED    = Already Booked
+             YELLOW = Selected by current user
+           Seat label legend, selected seats list, total price calculation
+
+SCREEN 6: BOOKING CONFIRM PAGE
+  Input  : Selected seats (passed via router state),
+           Show ID, Price
+           User clicks "Proceed to Pay"
+  Output : Order summary table (seats, subtotal, convenience fee, total)
+           Razorpay checkout popup on button click
+
+SCREEN 7: BOOKING CONFIRMATION / E-TICKET PAGE
+  Input  : Booking ID returned after successful payment verification
+  Output : Booking confirmation message, booking reference number,
+           Movie/Event name, Theatre, Date, Time, Seats booked,
+           Amount paid, Payment ID (Razorpay)
+
+SCREEN 8: MY BOOKINGS PAGE
+  Input  : JWT token (auto-sent in Authorization header)
+  Output : List of all past bookings for logged-in user:
+             Booking ID, Movie/Event, Theatre, Date, Seats, Amount, Status
+
+SCREEN 9: ADMIN DASHBOARD
+  Input  : Admin credentials (JWT with role=admin)
+  Output : Quick stats cards: Total Movies, Events, Theatres, Shows,
+           Recent bookings summary
+
+SCREEN 10: MANAGE MOVIES (ADMIN)
+  Input  : Movie form: Title, Genre, Language, Description, Cast, Poster URL,
+           Trailer URL, Release Date, Status, Is Trending (toggle)
+  Output : Movie added/updated/deleted in DB; success/error toast notification
+           TMDb Import button: auto-fills all fields from TMDb API by title
+
+SCREEN 11: MANAGE THEATRES (ADMIN)
+  Input  : Theatre Name, Address, City (dropdown), Total Rows, Seats per Row
+  Output : Theatre created with auto-configured seat capacity
+
+SCREEN 12: MANAGE SHOWS (ADMIN)
+  Input  : Movie/Event (dropdown), Theatre (dropdown), Date, Time, Price
+  Output : Show created; seats auto-generated for that show based on
+           theatre's total_rows x seats_per_row configuration
+
+SCREEN 13: ADMIN REPORTS
+  Output : Booking Report – list of all bookings (movie, user, seats, amount)
+           Revenue Report – total revenue grouped by city
+
+
+11.7 PROCESS INVOLVED
+================================================================================
+
+PROCESS 1: User Registration
+  1. User fills Register form (name, email, password).
+  2. Frontend validates inputs (non-empty, password match).
+  3. POST /api/auth/register — backend checks if email exists.
+  4. bcrypt.hash(password, 10) — password hashed.
+  5. INSERT INTO users — new record created.
+  6. Success response sent; user redirected to Login.
+
+PROCESS 2: User Login
+  1. User submits email and password.
+  2. POST /api/auth/login — backend queries user by email.
+  3. bcrypt.compare(inputPassword, storedHash) — verified.
+  4. jwt.sign({ user_id, role }, SECRET, { expiresIn: '7d' }) — token created.
+  5. Token and user object returned to frontend.
+  6. Stored in localStorage; AuthContext updated.
+
+PROCESS 3: Browsing Movies with City Filter
+  1. User selects city (stored in CityContext / localStorage).
+  2. GET /api/movies?city={cityId} — backend JOINs movies + shows + theatres.
+  3. Movies with at least one show in selected city are returned.
+  4. Home page renders movie cards; AllMovies page shows full listing.
+
+PROCESS 4: Show & Seat Map Loading
+  1. User selects a showtime from MovieDetail page.
+  2. Navigate to /shows/:showId/seats.
+  3. GET /api/shows/:id/seats — backend returns all seats for that show
+     with is_booked status for each.
+  4. Frontend renders color-coded seat grid.
+
+PROCESS 5: Booking & Payment (Core Process)
+  1. User selects seats (stored in local state as array of seat_ids).
+  2. POST /api/payment/create-order { amount } — Razorpay order created.
+  3. Razorpay popup opened with order_id and key.
+  4. User completes test payment — receives payment_id, order_id, signature.
+  5. POST /api/payment/verify { payment_id, order_id, signature, seat_ids, show_id }.
+  6. Backend verifies HMAC-SHA256 signature.
+  7. BEGIN TRANSACTION:
+       a. INSERT INTO bookings (user_id, show_id, total_amount, payment_id, status='confirmed')
+       b. UPDATE seats SET is_booked=TRUE WHERE seat_id IN (selected_ids)
+       c. INSERT INTO booking_seats for each seat
+       d. UPDATE shows SET available_seats = available_seats - count(selected seats)
+     COMMIT (or ROLLBACK on any failure)
+  8. Booking confirmation returned to frontend.
+
+PROCESS 6: Admin CRUD — Add Movie
+  1. Admin fills Movie form in /admin/movies.
+  2. POST /api/admin/movies — verifyToken + verifyAdmin middleware runs.
+  3. INSERT INTO movies with all provided fields.
+  4. Success toast shown; movie list refreshed.
+
+PROCESS 7: Trending Toggle
+  1. Admin clicks the Trending toggle on a movie or event.
+  2. PUT /api/admin/movies/:id — { is_trending: true/false }.
+  3. UPDATE movies SET is_trending = ? WHERE movie_id = ?
+  4. Home page now includes/excludes this movie from trending banner.
+
+
+11.8 METHODOLOGY USED FOR TESTING
+================================================================================
+
+Testing for QwikShow followed a layered testing strategy:
+
+8.1 Unit Testing (Manual)
+--------------------------
+Each backend route was tested individually using Postman before being
+integrated with the frontend. This includes:
+  - Auth routes: register, login, token validation
+  - Movie/Event routes: list, filter by city, detail
+  - Booking routes: create booking, view user bookings
+  - Admin routes: add/edit/delete for each entity
+  - Payment routes: create-order, verify-payment flows
+
+8.2 Integration Testing
+------------------------
+Frontend was connected to the backend and end-to-end flows were tested:
+  - User can register, login, browse, select seats, pay, and see confirmation.
+  - Admin can add a movie, create a show, and the show appears on user side.
+
+8.3 UI/UX Testing
+------------------
+  - Navigation tested across all pages using React Router.
+  - Protected routes tested: unauthenticated access correctly redirects to /login.
+  - Admin routes tested: non-admin JWT correctly blocked with 403 error.
+  - Seat color coding tested with fresh shows (all green) and partially booked
+    shows (red for booked, green for available).
+
+8.4 Payment Flow Testing
+-------------------------
+Razorpay test mode was used with the following test card:
+  Card Number : 4111 1111 1111 1111
+  Expiry      : Any future date
+  CVV         : Any 3-digit number
+  OTP         : 1234 (for 3D Secure simulation)
+  
+Both success and failure flows were tested:
+  - Successful payment → booking confirmed, seats marked booked.
+  - Cancelled payment → no booking created, seats remain available.
+
+8.5 Concurrency / Race Condition Testing
+-----------------------------------------
+Two browser sessions were opened simultaneously, both attempting to book
+the same seat for the same show. Due to MySQL transactions, only one booking
+succeeded and the other received a conflict error — confirming the double-
+booking prevention mechanism works correctly.
+
+8.6 Security Testing
+---------------------
+  - Accessing /api/bookings without a token → 401 Unauthorized.
+  - Accessing /api/admin/movies with a user (non-admin) token → 403 Forbidden.
+  - Malformed Razorpay signature → 400 Bad Request, no booking created.
+  - SQL injection attempt in login email field → handled by mysql2 parameterized
+    queries (no injection possible).
+
+
+11.9 TEST REPORT
+================================================================================
+
+TEST REPORT — QwikShow Application Testing
+Date: March 2025
+Tester: [Student Name]
+
+Test Case ID | Test Scenario                          | Expected Result        | Actual Result  | Status
+-------------|----------------------------------------|------------------------|----------------|--------
+TC-01        | Register with valid details            | Account created, login | As expected    | PASS
+TC-02        | Register with duplicate email          | Error: email exists    | Error shown    | PASS
+TC-03        | Login with valid credentials           | JWT returned, redirect | As expected    | PASS
+TC-04        | Login with wrong password              | 401 Unauthorized       | Error toast    | PASS
+TC-05        | Browse movies (city selected)          | City-filtered list     | As expected    | PASS
+TC-06        | View movie detail page                 | Poster+trailer+shows   | As expected    | PASS
+TC-07        | Access /shows/:id/seats (not logged in)| Redirect to /login     | As expected    | PASS
+TC-08        | Select available seats                 | Seat turns yellow      | As expected    | PASS
+TC-09        | Deselect a seat                        | Seat turns back green  | As expected    | PASS
+TC-10        | Complete Razorpay test payment         | Booking confirmed      | As expected    | PASS
+TC-11        | Cancel Razorpay payment                | No booking created     | As expected    | PASS
+TC-12        | View booked show seat map              | Booked seats in red    | As expected    | PASS
+TC-13        | Attempt to book already-booked seat    | Seat not selectable    | As expected    | PASS
+TC-14        | Concurrent booking (race condition)    | Only one succeeds      | As expected    | PASS
+TC-15        | View My Bookings                       | All past bookings shown| As expected    | PASS
+TC-16        | Admin login                            | Admin dashboard access | As expected    | PASS
+TC-17        | Non-admin access /admin                | Redirect to Home       | As expected    | PASS
+TC-18        | Admin: Add Movie                       | Movie appears in list  | As expected    | PASS
+TC-19        | Admin: Edit Movie                      | Changes reflected      | As expected    | PASS
+TC-20        | Admin: Delete Movie                    | Movie removed from DB  | As expected    | PASS
+TC-21        | Admin: Add Theatre                     | Theatre created        | As expected    | PASS
+TC-22        | Admin: Add Show                        | Seats auto-generated   | As expected    | PASS
+TC-23        | Admin: View Revenue Report             | Revenue data shown     | As expected    | PASS
+TC-24        | Tampered Razorpay signature            | 400 error, no booking  | As expected    | PASS
+TC-25        | Trending toggle on movie               | Appears on home page   | As expected    | PASS
+
+SUMMARY: 25/25 Test Cases PASSED | 0 FAILED
+
+
+11.10 PRINTOUT OF CODE SHEET
+================================================================================
+
+-- server.js (Backend Entry Point) --
+
+const express = require('express');
+const cors = require('cors');
+require('dotenv').config();
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+// Route Registrations
+const authRoutes = require('./routes/auth');
+app.use('/api/auth', authRoutes);
+
+const moviesRoutes = require('./routes/movies');
+app.use('/api/movies', moviesRoutes);
+
+const eventsRoutes = require('./routes/events');
+app.use('/api/events', eventsRoutes);
+
+const citiesRoutes = require('./routes/cities');
+app.use('/api/cities', citiesRoutes);
+
+const showsRoutes = require('./routes/shows');
+app.use('/api/shows', showsRoutes);
+
+const bookingsRoutes = require('./routes/bookings');
+app.use('/api/bookings', bookingsRoutes);
+
+const paymentRoutes = require('./routes/payment');
+app.use('/api/payment', paymentRoutes);
+
+const adminMoviesRoutes = require('./routes/admin/movies');
+app.use('/api/admin/movies', adminMoviesRoutes);
+
+const adminEventsRoutes = require('./routes/admin/events');
+app.use('/api/admin/events', adminEventsRoutes);
+
+const adminTheatresRoutes = require('./routes/admin/theatres');
+app.use('/api/admin/theatres', adminTheatresRoutes);
+
+const adminShowsRoutes = require('./routes/admin/shows');
+app.use('/api/admin/shows', adminShowsRoutes);
+
+const adminReportsRoutes = require('./routes/admin/reports');
+app.use('/api/admin/reports', adminReportsRoutes);
+
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'OK', message: 'QwikShow API is running!' });
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+});
+
+----------------------------------------------------------------------
+
+-- init_db.js (Database Schema - Key Tables) --
+
+// USERS TABLE
+CREATE TABLE IF NOT EXISTS users (
+  user_id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(100) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  role ENUM('user','admin') DEFAULT 'user',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+)
+
+// THEATRES TABLE
+CREATE TABLE IF NOT EXISTS theatres (
+  theatre_id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(100) NOT NULL,
+  address VARCHAR(255),
+  city_id INT NOT NULL,
+  total_rows INT NOT NULL,
+  seats_per_row INT NOT NULL,
+  FOREIGN KEY (city_id) REFERENCES cities(city_id)
+)
+
+// MOVIES TABLE
+CREATE TABLE IF NOT EXISTS movies (
+  movie_id INT PRIMARY KEY AUTO_INCREMENT,
+  title VARCHAR(200) NOT NULL,
+  genre VARCHAR(100),
+  language VARCHAR(50),
+  description TEXT,
+  cast_info TEXT,
+  poster_url VARCHAR(255),
+  trailer_url VARCHAR(255),
+  release_date DATE,
+  is_trending BOOLEAN DEFAULT FALSE,
+  status ENUM('now_showing','coming_soon','ended') DEFAULT 'coming_soon',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+)
+
+// SHOWS TABLE
+CREATE TABLE IF NOT EXISTS shows (
+  show_id INT PRIMARY KEY AUTO_INCREMENT,
+  movie_id INT,
+  event_id INT,
+  theatre_id INT NOT NULL,
+  show_date DATE NOT NULL,
+  show_time TIME NOT NULL,
+  price DECIMAL(8,2) NOT NULL,
+  available_seats INT NOT NULL,
+  FOREIGN KEY (movie_id) REFERENCES movies(movie_id),
+  FOREIGN KEY (event_id) REFERENCES events(event_id),
+  FOREIGN KEY (theatre_id) REFERENCES theatres(theatre_id)
+)
+
+// BOOKINGS TABLE
+CREATE TABLE IF NOT EXISTS bookings (
+  booking_id INT PRIMARY KEY AUTO_INCREMENT,
+  user_id INT NOT NULL,
+  show_id INT NOT NULL,
+  total_amount DECIMAL(10,2) NOT NULL,
+  payment_id VARCHAR(100),
+  status ENUM('pending','confirmed','cancelled') DEFAULT 'pending',
+  booked_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(user_id),
+  FOREIGN KEY (show_id) REFERENCES shows(show_id)
+)
+
+----------------------------------------------------------------------
+
+-- App.jsx (Frontend Routing - React Router v6) --
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <CityProvider>
+          <Toaster position="top-center" />
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/movies" element={<AllMovies />} />
+            <Route path="/movies/:id" element={<MovieDetail />} />
+            <Route path="/events" element={<AllEvents />} />
+            <Route path="/events/:id" element={<EventDetail />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+
+            {/* Protected Routes */}
+            <Route path="/shows/:id/seats" element={
+              <PrivateRoute><SeatSelection /></PrivateRoute>
+            } />
+            <Route path="/booking/confirm" element={
+              <PrivateRoute><BookingConfirm /></PrivateRoute>
+            } />
+            <Route path="/my-bookings" element={
+              <PrivateRoute><MyBookings /></PrivateRoute>
+            } />
+
+            {/* Admin Routes */}
+            <Route path="/admin" element={
+              <AdminRoute><AdminLayout /></AdminRoute>
+            }>
+              <Route index element={<Dashboard />} />
+              <Route path="movies" element={<ManageMovies />} />
+              <Route path="events" element={<ManageEvents />} />
+              <Route path="theatres" element={<ManageTheatres />} />
+              <Route path="shows" element={<ManageShows />} />
+            </Route>
+
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </CityProvider>
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}
+
+----------------------------------------------------------------------
+
+-- API ENDPOINT REFERENCE --
+
+Auth Endpoints:
+  POST   /api/auth/register          Register new user
+  POST   /api/auth/login             Login, get JWT token
+
+Movie Endpoints:
+  GET    /api/movies                 List all movies (optional ?city=)
+  GET    /api/movies/:id             Get movie details + shows
+
+Event Endpoints:
+  GET    /api/events                 List all events
+  GET    /api/events/:id             Get event details + shows
+
+City Endpoints:
+  GET    /api/cities                 List all cities
+
+Show Endpoints:
+  GET    /api/shows/:id              Get show info
+  GET    /api/shows/:id/seats        Get seat map for a show
+
+Booking Endpoints (JWT required):
+  POST   /api/bookings               Create a booking
+  GET    /api/bookings/mine          Get user's booking history
+
+Payment Endpoints (JWT required):
+  POST   /api/payment/create-order   Create Razorpay order
+  POST   /api/payment/verify         Verify payment + confirm booking
+
+Admin Endpoints (JWT + admin role):
+  GET/POST/PUT/DELETE  /api/admin/movies/:id
+  GET/POST/PUT/DELETE  /api/admin/events/:id
+  GET/POST/PUT/DELETE  /api/admin/theatres/:id
+  GET/POST/PUT/DELETE  /api/admin/shows/:id
+  GET                  /api/admin/reports/bookings
+  GET                  /api/admin/reports/revenue
+
+
+11.11 USER / OPERATIONAL MANUAL
+================================================================================
+
+-- SECTION A: USER MANUAL --
+
+A1. Getting Started
+--------------------
+1. Open your web browser (Google Chrome recommended).
+2. Navigate to: http://localhost:5173 (local) or [deployed URL].
+3. The QwikShow Home Page will load.
+
+A2. Selecting Your City
+------------------------
+1. On the Home Page, click the city dropdown in the top navigation bar.
+2. Select your city (Mumbai, Delhi, Bangalore, Hyderabad, or Chennai).
+3. The page will refresh to show movies and events available in your city.
+4. Your city preference is saved automatically for future visits.
+
+A3. Registering an Account
+----------------------------
+1. Click "Register" in the navigation bar.
+2. Fill in: Full Name, Email Address, Password, Confirm Password.
+3. Click "Create Account."
+4. If successful, you will be redirected to the Login page.
+5. Note: Email must be unique. Password must match Confirm Password.
+
+A4. Logging In
+---------------
+1. Click "Login" in the navigation bar.
+2. Enter your registered Email and Password.
+3. Click "Login."
+4. On success, you will be redirected to the Home Page.
+5. Your name will appear in the navigation bar confirming login.
+
+A5. Browsing Movies & Events
+------------------------------
+- Home Page: See Trending movies and events in the banner carousel.
+- Click "Movies" in the nav bar to see all movies available in your city.
+- Click "Events" to see all live events in your city.
+- Click on any movie/event card to view its detail page.
+
+A6. Booking a Movie Ticket
+---------------------------
+1. Go to Movie Detail page (click on a movie).
+2. Watch the trailer (embedded YouTube player).
+3. Scroll down to "Showtimes" section.
+4. Click on a showtime button for your chosen date and time.
+5. You will be redirected to the Seat Selection page.
+   (If not logged in, you will be asked to login first.)
+6. On the Seat Map:
+   - GREEN  = Available seat (can be selected)
+   - RED    = Already booked (cannot be selected)
+   - YELLOW = Your current selection
+7. Click on green seats to select them (they turn yellow).
+8. Click on yellow seats to deselect.
+9. View "Selected Seats" and "Total Price" in the summary panel.
+10. Click "Proceed to Pay" to go to the Order Summary page.
+11. Review your order: seat list, subtotal, convenience fee, total.
+12. Click "Pay Now" — Razorpay payment popup will appear.
+13. For test payments, use: Card 4111 1111 1111 1111, any expiry, any CVV.
+14. Complete payment — you will be redirected to the Booking Confirmation page.
+15. Your E-Ticket will show: Booking ID, Movie, Theatre, Date, Time, Seats, Amount.
+
+A7. Viewing Your Bookings
+--------------------------
+1. Click your username in the navbar → "My Bookings."
+2. All your past bookings are listed with status (Confirmed / Pending / Cancelled).
+
+A8. Logging Out
+----------------
+1. Click your username/avatar in the navbar.
+2. Click "Logout."
+3. Your session token is cleared and you are returned to the Home Page.
+
+A9. Security Features for Users
+---------------------------------
+- Passwords are hashed (never stored in plain text).
+- Your JWT session token expires after 7 days.
+- All booking and payment operations require authentication.
+- Your payment is processed by Razorpay — QwikShow never sees your card details.
+
+-- SECTION B: ADMINISTRATOR MANUAL --
+
+B1. Admin Access
+-----------------
+1. Log in with an admin-role account.
+2. The navigation bar will show an "Admin Panel" link.
+3. Or navigate directly to: /admin
+
+B2. Admin Dashboard
+--------------------
+The dashboard shows quick statistics:
+- Total Movies, Events, Theatres, Shows in the system.
+- Recent booking activity.
+
+B3. Managing Movies
+--------------------
+Navigate to Admin → Movies.
+- ADD MOVIE: Click "Add Movie" → fill in Title, Genre, Language, Description,
+  Cast Info, Poster URL, Trailer URL (YouTube embed URL), Release Date, Status.
+  Toggle "Is Trending" to feature on home page.
+- IMPORT FROM TMDb: Click "Import from TMDb" → enter movie title →
+  all fields are auto-filled from The Movie Database API.
+- EDIT MOVIE: Click Edit icon → modify fields → Save.
+- DELETE MOVIE: Click Delete icon → confirm deletion.
+
+B4. Managing Events
+--------------------
+Navigate to Admin → Events.
+- Similar to Movies: Add/Edit/Delete events with Title, Category, Description,
+  Poster URL, Trailer URL. Toggle Is Trending.
+
+B5. Managing Theatres
+----------------------
+Navigate to Admin → Theatres.
+- ADD THEATRE: Name, Address, City (select from dropdown),
+  Total Rows, Seats Per Row.
+- The seat capacity = Total Rows × Seats Per Row.
+  (e.g., 8 rows × 10 seats = 80 seats per show)
+- EDIT / DELETE as needed.
+
+B6. Managing Shows
+-------------------
+Navigate to Admin → Shows.
+- ADD SHOW: Select Movie OR Event (not both), select Theatre,
+  set Show Date, Show Time, and Ticket Price.
+- On creation, seats are automatically generated in the seats table
+  (e.g., A1 to H10 for an 8×10 theatre).
+- EDIT / DELETE as needed.
+
+B7. Reports
+------------
+Navigate to Admin → Reports.
+- Booking Report: See all confirmed bookings across the system
+  (User, Movie/Event, Theatre, Date, Seats, Amount, Payment ID).
+- Revenue Report: Total revenue grouped by city.
+
+B8. Access Control & Security (Admin)
+--------------------------------------
+- Admin credentials must be set directly in the database
+  (role = 'admin' in users table).
+- All admin API endpoints validate both the JWT token AND the admin role.
+- A regular user JWT cannot access any admin route — returns 403 Forbidden.
+
+B9. Backup & Recovery
+----------------------
+- Database: Use XAMPP phpMyAdmin to Export the entire 'cinebook' database as
+  SQL dump (mysqldump equivalent). Schedule regular backups.
+- Recommendation: Backup database daily in production.
+- Application Code: Maintained on GitHub — pull latest commit to restore code.
+
+B10. Common Admin Tasks — Quick Reference
+------------------------------------------
+Task                             | Steps
+---------------------------------|----------------------------------------------
+Add a new city                   | Directly INSERT into cities table via phpMyAdmin
+Change ticket price for a show   | Edit Show → update price
+Remove a show without deleting   | (Future: add show status toggle)
+See who booked a specific show   | Admin Reports → Booking Report → filter by show
+Mark a movie as Now Showing      | Edit Movie → change Status to 'now_showing'
+Feature a movie on home banner   | Edit Movie → toggle Is Trending = ON
+
+
+11.12 CONCLUSION
+================================================================================
+
+QwikShow has been successfully designed, developed, tested, and documented as a
+full-stack movie and event booking platform. The project achieves all stated
+objectives — providing a seamless end-to-end booking experience for users and
+a comprehensive management console for administrators.
+
+Key achievements of this project:
+
+1. TECHNICAL EXCELLENCE:
+   The system integrates six major technical domains — relational database design,
+   REST API development, JWT authentication, Razorpay payment gateway, React.js
+   SPA development, and ACID transaction-based concurrency control — into a
+   single cohesive application.
+
+2. REAL-WORLD RELEVANCE:
+   QwikShow mirrors the architecture of commercial platforms like BookMyShow,
+   PVR Cinemas, and similar ticketing applications, making it a practically
+   meaningful academic exercise.
+
+3. SECURITY:
+   The system implements industry-standard security practices: bcrypt password
+   hashing, JWT-based stateless authentication, role-based access control,
+   and Razorpay HMAC-SHA256 payment signature verification.
+
+4. SCALABILITY:
+   The three-tier architecture (React + Node/Express + MySQL) can be horizontally
+   scaled. The frontend can be deployed to a CDN, the backend to multiple Node
+   instances behind a load balancer, and MySQL migrated to a managed cloud
+   database with minimal code changes.
+
+5. TESTING:
+   All 25 test cases passed, including critical edge cases like concurrent
+   seat booking (race condition), tampered payment signatures, and unauthorized
+   access to admin routes.
+
+6. USER EXPERIENCE:
+   The dark-themed cinema aesthetic, city-based content filtering, visual seat
+   grid, embedded trailers, and instant toast notifications deliver a modern,
+   polished user experience comparable to commercial booking platforms.
+
+CHALLENGES FACED:
+  - Designing a race-condition-safe seat booking system without WebSocket-based
+    locking (solved using MySQL transactions).
+  - Managing React state across pages for the seat selection → payment → 
+    confirmation flow (solved using React Router state and Context API).
+  - Razorpay HMAC verification required careful string concatenation (order_id
+    + "|" + payment_id format) — documented in the Razorpay SDK and implemented
+    using Node.js crypto module.
+
+FUTURE SCOPE:
+  QwikShow v2.0 envisions real-time seat locking (Socket.io), email/SMS
+  confirmations (Nodemailer/Twilio), live Razorpay integration, ticket
+  cancellation/refunds, a loyalty points system, PWA support for mobile,
+  and multi-language UI — transforming this into a production-ready,
+  commercially deployable platform.
+
+In conclusion, QwikShow stands as a comprehensive demonstration of modern
+full-stack web development capabilities, combining theoretical computer science
+concepts (database normalization, API design, cryptographic verification) with
+practical engineering skills (React hooks, Express middleware, MySQL transactions)
+to deliver a production-quality academic capstone project.
+
+
+================================================================================
+               CHAPTER 12: REFERENCES
+================================================================================
+
+1. React Documentation — https://react.dev/
+2. Node.js Documentation — https://nodejs.org/en/docs
+3. Express.js Documentation — https://expressjs.com/
+4. MySQL 8.0 Reference Manual — https://dev.mysql.com/doc/refman/8.0/en/
+5. Razorpay Developer Documentation — https://razorpay.com/docs/
+6. JSON Web Tokens (JWT) RFC 7519 — https://tools.ietf.org/html/rfc7519
+7. Vite Build Tool — https://vitejs.dev/
+8. The Movie Database (TMDb) API — https://developer.themoviedb.org/
+9. bcrypt NPM Package — https://www.npmjs.com/package/bcrypt
+10. React Router v6 Documentation — https://reactrouter.com/en/main
+11. XAMPP Documentation — https://www.apachefriends.org/
+12. mysql2 NPM Package — https://www.npmjs.com/package/mysql2
+13. Pressman, R.S. (2014). Software Engineering: A Practitioner's Approach,
+    8th Edition, McGraw-Hill Education.
+14. Elmasri, R. & Navathe, S.B. (2015). Fundamentals of Database Systems,
+    7th Edition, Pearson.
+15. Flanagan, D. (2020). JavaScript: The Definitive Guide, 7th Edition, O'Reilly.
+16. Sommerville, I. (2016). Software Engineering, 10th Edition, Pearson.
+
+
+================================================================================
+                           END OF REPORT
+================================================================================
+
+                    QwikShow — Movie & Event Booking Platform
+                         MCA Final Year Project Report
+                          Academic Year: 2024-2025
+
+================================================================================
