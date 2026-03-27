@@ -110,6 +110,9 @@ exports.fetchMovieMeta = async (req, res) => {
         res.json(formatted);
     } catch (error) {
         console.error('Admin fetchMovieMeta error:', error.message);
+        if (error.code === 'NETWORK_ERROR') {
+            return res.status(503).json({ message: 'TMDb API is unreachable. Your network may be blocking it. Try enabling a VPN and retry.' });
+        }
         res.status(500).json({ message: 'Error fetching metadata from TMDb.' });
     }
 };

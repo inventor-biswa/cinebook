@@ -1,7 +1,7 @@
 # CineBook — Developer Guide
 
 > A complete guide for setting up, running, and understanding the CineBook project.  
-> Intended for developers and students working on this codebase.
+> Intended for developers and students working on this codebase on **Windows**.
 
 ---
 
@@ -43,20 +43,24 @@
 
 ## 3. Prerequisites
 
-Make sure the following are installed on your machine:
+Make sure the following are installed on your Windows machine:
 
-| Tool        | Minimum Version | Check with          |
-|-------------|-----------------|---------------------|
-| Node.js     | v18+            | `node --version`    |
-| npm         | v9+             | `npm --version`     |
-| MySQL       | v8+             | `mysql --version`   |
+| Tool        | Minimum Version | Check with          | Download |
+|-------------|-----------------|---------------------|----------|
+| Node.js     | v18+            | `node --version`    | [nodejs.org](https://nodejs.org) |
+| npm         | v9+             | `npm --version`     | Included with Node.js |
+| MySQL       | v8+             | `mysql --version`   | [dev.mysql.com](https://dev.mysql.com/downloads/installer/) |
+
+> ⚠️ After installing MySQL, make sure to add it to your **System PATH**:  
+> `C:\Program Files\MySQL\MySQL Server 8.0\bin`  
+> (Settings → System → Advanced → Environment Variables → Path)
 
 ---
 
 ## 4. Project Structure
 
 ```
-Booking_project/
+Cinebook/
 │
 ├── backend/                  ← Express API server
 │   ├── server.js             ← Entry point
@@ -65,7 +69,7 @@ Booking_project/
 │   │   └── db.js             ← MySQL connection pool
 │   ├── routes/               ← API route definitions
 │   ├── controllers/          ← Business logic
-│   ├── middleware/           ← Auth guards (verifyToken, isAdmin)
+│   ├── middleware/            ← Auth guards (verifyToken, isAdmin)
 │   └── scripts/
 │       └── init_db.js        ← Creates all tables + seeds cities
 │
@@ -92,26 +96,34 @@ Follow these steps **once** when setting up on a new machine.
 
 ### Step 1 — Clone / Open the project
 
-```bash
-cd ~/Booking_project
+Open **PowerShell** or **Command Prompt** and navigate to your project folder:
+
+```powershell
+cd "D:\Thynx\College Projects\Cinebook"
 ```
 
 ### Step 2 — Set up the Database
 
-```bash
-# Start MySQL if not already running
-sudo systemctl start mysql
+Open the **MySQL Command Line Client** (installed with MySQL), or use **MySQL Workbench**.
 
-# Run the database initialisation script
+In the MySQL CLI, it will ask for your root password. Then run the init script from PowerShell:
+
+```powershell
 cd backend
 node scripts/init_db.js
 ```
 
 This creates all tables and seeds 5 default cities (Mumbai, Delhi, Bangalore, Chennai, Hyderabad).
 
+> 💡 To start MySQL if it's not running: open **Services** (press `Win + R`, type `services.msc`) and start **MySQL80**.  
+> Or in PowerShell (run as Administrator):
+> ```powershell
+> net start MySQL80
+> ```
+
 ### Step 3 — Install Backend Dependencies
 
-```bash
+```powershell
 cd backend
 npm install
 ```
@@ -133,7 +145,7 @@ PORT=5000
 
 ### Step 5 — Install Frontend Dependencies
 
-```bash
+```powershell
 cd frontend
 npm install
 ```
@@ -154,12 +166,12 @@ VITE_RAZORPAY_KEY_ID=rzp_test_xxxxxxxxxx
 
 ## 6. Starting the Project
 
-You need **two terminal windows** — one for the backend, one for the frontend.
+You need **two PowerShell windows** — one for the backend, one for the frontend.
 
 ### Terminal 1 — Start the Backend
 
-```bash
-cd ~/Booking_project/backend
+```powershell
+cd "D:\Thynx\College Projects\Cinebook\backend"
 node server.js
 ```
 
@@ -170,8 +182,8 @@ Server running on http://localhost:5000
 
 ### Terminal 2 — Start the Frontend
 
-```bash
-cd ~/Booking_project/frontend
+```powershell
+cd "D:\Thynx\College Projects\Cinebook\frontend"
 npm run dev
 ```
 
@@ -197,10 +209,10 @@ http://localhost:5173
 
 **Step 1:** Register a new account through the app at `http://localhost:5173/register`
 
-**Step 2:** Promote that account to admin in MySQL:
+**Step 2:** Open MySQL CLI and promote that account to admin:
 
-```bash
-mysql -u root cinebook
+```powershell
+mysql -u root -p cinebook
 ```
 
 ```sql
@@ -264,24 +276,27 @@ VALUES (
 
 ## 9. Useful Commands
 
-```bash
+```powershell
 # Test backend is running
 curl http://localhost:5000/api/health
 
-# Run the full API test suite
-bash backend/test.sh
-
 # Build the frontend for production
-cd frontend && npm run build
+cd frontend; npm run build
 
 # Re-initialise the database (drops & recreates all tables)
-cd backend && node scripts/init_db.js
+cd backend; node scripts/init_db.js
 
-# Start MySQL
-sudo systemctl start mysql
+# Start MySQL service (run PowerShell as Administrator)
+net start MySQL80
 
-# Check MySQL status
-sudo systemctl status mysql
+# Stop MySQL service
+net stop MySQL80
+
+# Check if port 5000 is in use
+netstat -ano | findstr :5000
+
+# Kill a process using port 5000 (replace <PID> with the number from above)
+taskkill /PID <PID> /F
 ```
 
 ---
@@ -295,5 +310,7 @@ sudo systemctl status mysql
 | City dropdown empty | Backend not reachable | Make sure backend is running on port `5000` |
 | Razorpay window doesn't open | Wrong key or missing `.env` | Check `VITE_RAZORPAY_KEY_ID` in `frontend/.env` |
 | Admin link not showing in Navbar | Not logged in as admin | Run the `UPDATE users SET role='admin'` SQL command |
-| `npm install` errors | Node version too old | Update Node.js to v18+ |
-| Port 5000 already in use | Another process | `pkill -f "node server.js"` then restart |
+| `npm install` errors | Node version too old | Update Node.js to v18+ from [nodejs.org](https://nodejs.org) |
+| Port 5000 already in use | Another process using the port | Run `netstat -ano \| findstr :5000` then `taskkill /PID <PID> /F` |
+| `mysql` not recognized in terminal | MySQL not in PATH | Add `C:\Program Files\MySQL\MySQL Server 8.0\bin` to System PATH |
+| TMDb Fetch button fails | `api.themoviedb.org` blocked by ISP/network | Enable a VPN (e.g. ProtonVPN) and retry |

@@ -17,6 +17,12 @@ const searchMovie = async (title) => {
         });
         return response.data.results;
     } catch (error) {
+        if (error.code === 'ETIMEDOUT' || error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' || error.code === 'ECONNRESET') {
+            const networkErr = new Error(`Cannot reach TMDb API (network blocked or no internet). Error code: ${error.code}`);
+            networkErr.code = 'NETWORK_ERROR';
+            console.error('TMDb searchMovie network error:', error.code);
+            throw networkErr;
+        }
         console.error('TMDb searchMovie error:', error.response?.data || error.message);
         throw error;
     }
@@ -37,6 +43,12 @@ const getMovieDetails = async (tmdbId) => {
         });
         return response.data;
     } catch (error) {
+        if (error.code === 'ETIMEDOUT' || error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' || error.code === 'ECONNRESET') {
+            const networkErr = new Error(`Cannot reach TMDb API (network blocked or no internet). Error code: ${error.code}`);
+            networkErr.code = 'NETWORK_ERROR';
+            console.error('TMDb getMovieDetails network error:', error.code);
+            throw networkErr;
+        }
         console.error('TMDb getMovieDetails error:', error.response?.data || error.message);
         throw error;
     }
