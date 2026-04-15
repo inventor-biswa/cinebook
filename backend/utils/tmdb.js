@@ -1,6 +1,36 @@
 const axios = require('axios');
 
 const BASE_URL = 'https://api.themoviedb.org/3';
+const BASE_URL_ALT = 'https://api.tmdb.org/3'; // alt domain, sometimes unblocked on mobile ISPs
+
+// network error codes that commonly appear on mobile-data connections
+const NETWORK_CODES = new Set(['ETIMEDOUT','ECONNREFUSED','ENOTFOUND','ECONNRESET','ENETUNREACH','EHOSTUNREACH','EAI_AGAIN']);
+
+// helper: try primary URL, then alt URL on network failure
+const tmdbGet = async (path, params) => {
+    const urls = [BASE_URL, BASE_URL_ALT];
+    let lastErr;
+    for (const base of urls) {
+        try {
+            const response = await axios.get(`${base}${path}`, {
+                params,
+                timeout: 12000,   // 12 s — mobile networks are slower
+            });
+            return response;
+        } catch (error) {
+            lastErr = error;
+            if (NETWORK_CODES.has(error.code)) {
+                // try next base URL
+                continue;
+            }
+            throw error; // non-network error — no point retrying
+        }
+    }
+    // both URLs failed with a network error
+    const networkErr = new Error(`Cannot reach TMDb API (network blocked or no internet). Error code: ${lastErr.code}`);
+    networkErr.code = 'NETWORK_ERROR';
+    throw networkErr;
+};
 
 /**
  * Search for a movie by title.
@@ -9,20 +39,13 @@ const BASE_URL = 'https://api.themoviedb.org/3';
  */
 const searchMovie = async (title) => {
     try {
-        const response = await axios.get(`${BASE_URL}/search/movie`, {
-            params: {
-                api_key: process.env.TMDB_API_KEY,
-                query: title
-            }
+        const response = await tmdbGet('/search/movie', {
+            api_key: process.env.TMDB_API_KEY,
+            query: title
         });
         return response.data.results;
     } catch (error) {
-        if (error.code === 'ETIMEDOUT' || error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' || error.code === 'ECONNRESET') {
-            const networkErr = new Error(`Cannot reach TMDb API (network blocked or no internet). Error code: ${error.code}`);
-            networkErr.code = 'NETWORK_ERROR';
-            console.error('TMDb searchMovie network error:', error.code);
-            throw networkErr;
-        }
+        if (error.code === 'NETWORK_ERROR') throw error;
         console.error('TMDb searchMovie error:', error.response?.data || error.message);
         throw error;
     }
@@ -35,20 +58,13 @@ const searchMovie = async (title) => {
  */
 const getMovieDetails = async (tmdbId) => {
     try {
-        const response = await axios.get(`${BASE_URL}/movie/${tmdbId}`, {
-            params: {
-                api_key: process.env.TMDB_API_KEY,
-                append_to_response: 'videos'
-            }
+        const response = await tmdbGet(`/movie/${tmdbId}`, {
+            api_key: process.env.TMDB_API_KEY,
+            append_to_response: 'videos'
         });
         return response.data;
     } catch (error) {
-        if (error.code === 'ETIMEDOUT' || error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' || error.code === 'ECONNRESET') {
-            const networkErr = new Error(`Cannot reach TMDb API (network blocked or no internet). Error code: ${error.code}`);
-            networkErr.code = 'NETWORK_ERROR';
-            console.error('TMDb getMovieDetails network error:', error.code);
-            throw networkErr;
-        }
+        if (error.code === 'NETWORK_ERROR') throw error;
         console.error('TMDb getMovieDetails error:', error.response?.data || error.message);
         throw error;
     }

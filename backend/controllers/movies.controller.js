@@ -1,39 +1,48 @@
 const pool = require('../config/db');
 
 // ─── GET ALL MOVIES ──────────────────────────────────────────────────────────
-// GET /api/movies?city_id=1
-// Returns all "now_showing" movies that have at least one show in the given city.
-// If no city_id is passed, returns all now_showing movies globally.
+// GET /api/movies?status=now_showing          — all movies by status (no city)
+// GET /api/movies?city_id=1                   — movies with shows in that city
+// GET /api/movies?status=now_showing&city_id=1 — both filters combined
 
 exports.getAllMovies = async (req, res) => {
     try {
-        const { city_id } = req.query;
+        const { city_id, status } = req.query;
 
         let query;
         let params;
 
         if (city_id) {
-            // JOIN: movies → shows → theatres → cities
-            // DISTINCT ensures we don't return the same movie multiple times
-            // even if it has multiple shows in that city.
+            // JOIN: movies → shows → theatres → cities (used by Now Showing on Home page)
+            const movieStatus = status || 'now_showing';
             query = `
         SELECT DISTINCT m.movie_id, m.title, m.genre, m.language,
-               m.poster_url, m.release_date, m.is_trending, m.status
+               m.poster_url, m.trailer_url, m.release_date, m.is_trending, m.status
         FROM movies m
         JOIN shows s ON m.movie_id = s.movie_id
         JOIN theatres t ON s.theatre_id = t.theatre_id
-        WHERE t.city_id = ? AND m.status = 'now_showing'
+        WHERE t.city_id = ? AND m.status = ?
         ORDER BY m.release_date DESC
       `;
-            params = [city_id];
-        } else {
-            // No city filter — return all now_showing movies
+            params = [city_id, movieStatus];
+        } else if (status) {
+            // Specific status, no city filter
             query = `
-        SELECT movie_id, title, genre, language, poster_url,
+        SELECT movie_id, title, genre, language, poster_url, trailer_url,
                release_date, is_trending, status
         FROM movies
-        WHERE status = 'now_showing'
-        ORDER BY release_date DESC
+        WHERE status = ?
+        ORDER BY is_trending DESC, release_date DESC
+      `;
+            params = [status];
+        } else {
+            // No filters — return ALL movies (All Movies page)
+            query = `
+        SELECT movie_id, title, genre, language, poster_url, trailer_url,
+               release_date, is_trending, status
+        FROM movies
+        WHERE status IN ('now_showing', 'coming_soon')
+        ORDER BY is_trending DESC, status ASC, release_date DESC
       `;
             params = [];
         }

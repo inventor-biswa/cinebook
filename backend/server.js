@@ -52,6 +52,12 @@ app.use('/api/admin/shows', adminShowsRoutes);
 const adminReportsRoutes = require('./routes/admin/reports');
 app.use('/api/admin/reports', adminReportsRoutes);
 
+const offersRoutes = require('./routes/offers');
+app.use('/api/offers', offersRoutes);
+
+const recommendationsRoutes = require('./routes/recommendations');
+app.use('/api/recommendations', recommendationsRoutes);
+
 
 // ─── Health Check ─────────────────────────────────────────────────────────────
 // A simple GET route to confirm the server is running correctly

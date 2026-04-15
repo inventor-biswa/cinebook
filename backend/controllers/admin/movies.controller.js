@@ -116,3 +116,59 @@ exports.fetchMovieMeta = async (req, res) => {
         res.status(500).json({ message: 'Error fetching metadata from TMDb.' });
     }
 };
+
+// ─── ADMIN: BULK IMPORT MOVIES FROM TMDB ────────────────────────────────────────────
+// POST /api/admin/movies/bulk-import
+// Body: { titles: ["Movie1", "Movie2", ...] }
+exports.bulkImportMovies = async (req, res) => {
+    const { titles } = req.body;
+    if (!Array.isArray(titles) || titles.length === 0) {
+        return res.status(400).json({ message: 'titles array is required.' });
+    }
+    if (titles.length > 20) {
+        return res.status(400).json({ message: 'Maximum 20 movies per bulk import.' });
+    }
+
+    const results = { imported: [], skipped: [], failed: [] };
+
+    for (const rawTitle of titles) {
+        const title = rawTitle.trim();
+        if (!title) continue;
+        try {
+            // Skip if title already exists
+            const [existing] = await pool.query('SELECT movie_id FROM movies WHERE LOWER(title) = LOWER(?)', [title]);
+            if (existing.length > 0) {
+                results.skipped.push({ title, reason: 'Already exists' });
+                continue;
+            }
+
+            const searchResults = await tmdb.searchMovie(title);
+            if (!searchResults || searchResults.length === 0) {
+                results.failed.push({ title, reason: 'Not found on TMDb' });
+                continue;
+            }
+
+            const details = await tmdb.getMovieDetails(searchResults[0].id);
+            const movie = tmdb.formatMovieData(details);
+
+            // Pick first genre only
+            const genre = movie.genre ? movie.genre.split(', ')[0] : null;
+
+            await pool.query(
+                `INSERT INTO movies (title, genre, language, description, cast_info, poster_url, trailer_url, release_date, is_trending, status)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [movie.title, genre, movie.language, movie.description, movie.cast_info,
+                 movie.poster_url, movie.trailer_url, movie.release_date, false, 'coming_soon']
+            );
+            results.imported.push(movie.title);
+        } catch (err) {
+            console.error(`bulkImport failed for "${title}":`, err.message);
+            results.failed.push({ title, reason: 'Fetch or DB error' });
+        }
+    }
+
+    res.json({
+        message: `Import complete: ${results.imported.length} imported, ${results.skipped.length} skipped, ${results.failed.length} failed.`,
+        ...results,
+    });
+};

@@ -63,6 +63,17 @@ exports.createBooking = async (req, res) => {
         );
         const booking_id = bookingResult.insertId;
 
+        // Generate human-readable booking reference: QS-YYYYMMDD-XXXX
+        const now = new Date();
+        const datePart = now.getFullYear().toString() +
+            String(now.getMonth() + 1).padStart(2, '0') +
+            String(now.getDate()).padStart(2, '0');
+        const booking_ref = `QS-${datePart}-${String(booking_id).padStart(4, '0')}`;
+        await connection.query(
+            'UPDATE bookings SET booking_ref = ? WHERE booking_id = ?',
+            [booking_ref, booking_id]
+        );
+
         // 5. Mark seats as booked
         await connection.query(
             'UPDATE seats SET is_booked = true WHERE seat_id IN (?)',
@@ -82,12 +93,21 @@ exports.createBooking = async (req, res) => {
             [seat_ids.length, show_id]
         );
 
-        // 8. Commit the Transaction — all changes are saved at exactly the same time!
+        // 8. Award reward points (₹1 spent = 1 point)
+        const pointsEarned = Math.floor(totalAmount);
+        await connection.query(
+            'UPDATE users SET reward_points = reward_points + ? WHERE user_id = ?',
+            [pointsEarned, user_id]
+        );
+
+        // 9. Commit the Transaction — all changes are saved at exactly the same time!
         await connection.commit();
 
         res.status(201).json({
             message: 'Booking created successfully. Status is pending payment.',
             booking_id,
+            booking_ref,
+            points_earned: pointsEarned,
             total_amount: totalAmount
         });
 
@@ -121,10 +141,11 @@ exports.getMyBookings = async (req, res) => {
 
         // Join bookings with shows, movies/events, and theatres to give a rich history
         const [bookings] = await pool.query(`
-      SELECT b.booking_id, b.total_amount, b.status, b.booked_at,
+      SELECT b.booking_id, b.booking_ref, b.total_amount, b.status, b.booked_at,
              s.show_date, s.show_time,
              t.name AS theatre_name,
              COALESCE(m.title, e.title) AS title,
+             COALESCE(m.poster_url, e.poster_url) AS poster_url,
              GROUP_CONCAT(seats.seat_label) AS seat_labels
       FROM bookings b
       JOIN shows s ON b.show_id = s.show_id

@@ -8,6 +8,10 @@
     border: 1px solid var(--border);
     transition: var(--transition);
     cursor: pointer;
+    /* Fixed width for horizontal rows; in grids this is overridden by parent */
+    width: 160px;
+    min-width: 160px;
+    flex-shrink: 0;
 }
 
 .movie-card:hover {
@@ -53,14 +57,14 @@
 }
 
 .movie-card__book-btn {
-    background: var(--accent);
+    background: var(--gradient);
     color: #fff;
     padding: 8px 20px;
     border-radius: var(--radius-full);
     font-size: 0.85rem;
     font-weight: 600;
     white-space: nowrap;
-    box-shadow: 0 4px 16px rgba(229, 9, 20, 0.4);
+    box-shadow: 0 4px 16px rgba(168,85,247,0.45);
 }
 
 /* Badge */

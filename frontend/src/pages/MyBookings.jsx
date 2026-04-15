@@ -44,8 +44,12 @@ function MyBookings() {
                     <div className="my-bookings__list">
                         {bookings.map(b => (
                             <div key={b.booking_id} className="booking-card">
+                                {b.poster_url && (
+                                    <img src={b.poster_url} alt={b.title} className="booking-card__poster" />
+                                )}
                                 <div className="booking-card__left">
                                     <p className="booking-card__title">{b.title || 'Event'}</p>
+                                    <p className="booking-card__ref">🎟️ {b.booking_ref || `#${b.booking_id}`}</p>
                                     <p className="booking-card__venue">{b.theatre_name}</p>
                                     <p className="booking-card__time">
                                         {new Date(b.show_date).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}

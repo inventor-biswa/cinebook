@@ -53,6 +53,22 @@
     color: var(--text-primary);
 }
 
+.booking-card__ref {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--primary);
+    font-family: monospace;
+    letter-spacing: 0.5px;
+}
+
+.booking-card__poster {
+    width: 60px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
 .booking-card__venue {
     font-size: 0.85rem;
     color: var(--text-secondary);

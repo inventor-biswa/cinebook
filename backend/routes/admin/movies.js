@@ -16,6 +16,9 @@ router.post('/', createMovie);
 // POST /api/admin/movies/fetch-meta
 router.post('/fetch-meta', require('../../controllers/admin/movies.controller').fetchMovieMeta);
 
+// POST /api/admin/movies/bulk-import
+router.post('/bulk-import', require('../../controllers/admin/movies.controller').bulkImportMovies);
+
 // PUT /api/admin/movies/:id
 router.put('/:id', updateMovie);
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import API from '../../api/axios';
+import ConfirmModal from '../../components/ConfirmModal';
 import './Admin.css';
 
 const EMPTY = { title: '', genre: '', language: '', description: '', cast_info: '', poster_url: '', trailer_url: '', release_date: '', status: 'now_showing', is_trending: false };
@@ -8,9 +9,14 @@ const EMPTY = { title: '', genre: '', language: '', description: '', cast_info: 
 function ManageMovies() {
     const [movies, setMovies] = useState([]);
     const [modal, setModal] = useState(false);
-    const [editing, setEditing] = useState(null); // null = add, id = edit
+    const [bulkModal, setBulkModal] = useState(false);
+    const [bulkTitles, setBulkTitles] = useState('');
+    const [bulkLoading, setBulkLoading] = useState(false);
+    const [bulkResult, setBulkResult] = useState(null);
+    const [editing, setEditing] = useState(null);
     const [form, setForm] = useState(EMPTY);
     const [loading, setLoading] = useState(false);
+    const [confirmTarget, setConfirmTarget] = useState(null); // { id, title }
 
     const fetchMovies = () => API.get('/admin/movies').then(r => setMovies(r.data)).catch(() => { });
     useEffect(() => { fetchMovies(); }, []);
@@ -46,13 +52,34 @@ function ManageMovies() {
     };
 
     const handleDelete = async (id, title) => {
-        if (!window.confirm(`Delete "${title}"?`)) return;
+        setConfirmTarget({ id, title });
+    };
+
+    const confirmDelete = async () => {
+        const { id } = confirmTarget;
+        setConfirmTarget(null);
         try {
             await API.delete(`/admin/movies/${id}`);
             toast.success('Movie deleted.');
             setMovies(prev => prev.filter(m => m.movie_id !== id));
-        } catch {
-            toast.error('Delete failed.');
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Delete failed.');
+        }
+    };
+
+    const handleBulkImport = async () => {
+        const titles = bulkTitles.split('\n').map(t => t.trim()).filter(Boolean);
+        if (titles.length === 0) return toast.error('Enter at least one title.');
+        setBulkLoading(true);
+        setBulkResult(null);
+        try {
+            const res = await API.post('/admin/movies/bulk-import', { titles });
+            setBulkResult(res.data);
+            fetchMovies();
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Bulk import failed.');
+        } finally {
+            setBulkLoading(false);
         }
     };
 
@@ -60,7 +87,10 @@ function ManageMovies() {
         <div>
             <div className="admin-header">
                 <h1>Movies</h1>
-                <button className="btn btn-primary" onClick={openAdd}>+ Add Movie</button>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <button className="btn btn-ghost" onClick={() => { setBulkModal(true); setBulkResult(null); setBulkTitles(''); }}>📥 Bulk Import</button>
+                    <button className="btn btn-primary" onClick={openAdd}>+ Add Movie</button>
+                </div>
             </div>
 
             <div className="admin-table-wrap">
@@ -115,20 +145,23 @@ function ManageMovies() {
                                             try {
                                                 setLoading(true);
                                                 const res = await API.post('/admin/movies/fetch-meta', { title: form.title });
-                                                // Map first genre if possible (Cinebook uses comma-separated string but we have a dropdown)
-                                                // For now, we'll try to match the first genre name to the dropdown
                                                 const firstGenre = res.data.genre.split(', ')[0];
                                                 setForm(f => ({ ...f, ...res.data, genre: firstGenre }));
                                                 toast.success('Metadata fetched from TMDb!');
                                             } catch (err) {
-                                                toast.error(err.response?.data?.message || 'Meta fetch failed.');
+                                                const msg = err.response?.data?.message || '';
+                                                if (msg.includes('network') || msg.includes('VPN') || msg.includes('unreachable') || err.code === 'ERR_NETWORK') {
+                                                    toast.error('📶 TMDb blocked on your network. Switch to office WiFi, or use a VPN and retry.', { duration: 5000 });
+                                                } else {
+                                                    toast.error(msg || 'Meta fetch failed. Try again.');
+                                                }
                                             } finally {
                                                 setLoading(false);
                                             }
                                         }}
                                         disabled={loading}
                                     >
-                                        {loading ? '...' : '✨ Fetch'}
+                                        {loading ? '⏳ Fetching…' : '✨ Fetch'}
                                     </button>
                                 </div>
                             </div>
@@ -185,8 +218,54 @@ function ManageMovies() {
                                 </select>
                             </div>
                             <div className="form-group" style={{ flexDirection: 'row', alignItems: 'center', gap: 'var(--space-sm)' }}>
-                                <input type="checkbox" id="is_trending" name="is_trending" checked={!!form.is_trending} onChange={handleChange} style={{ width: 'auto' }} />
-                                <label htmlFor="is_trending" style={{ marginBottom: 0 }}>Mark as Trending</label>
+                                <input type="checkbox" id="is_trending" name="is_trending" checked={!!form.is_trending} onChange={handleChange} style={{ display: 'none' }} />
+                                <button
+                                    type="button"
+                                    onClick={() => setForm(f => ({ ...f, is_trending: !f.is_trending }))}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '10px',
+                                        background: form.is_trending
+                                            ? 'rgba(255,204,0,0.15)'
+                                            : 'var(--bg-elevated)',
+                                        border: form.is_trending
+                                            ? '1px solid rgba(255,204,0,0.5)'
+                                            : '1px solid var(--border-strong)',
+                                        borderRadius: 'var(--radius-full)',
+                                        padding: '8px 18px',
+                                        color: form.is_trending ? 'var(--gold)' : 'var(--text-muted)',
+                                        fontWeight: 600,
+                                        fontSize: '0.875rem',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.25s ease',
+                                        userSelect: 'none',
+                                    }}
+                                >
+                                    {/* Toggle pill */}
+                                    <span style={{
+                                        display: 'inline-block',
+                                        width: '36px',
+                                        height: '20px',
+                                        borderRadius: '999px',
+                                        background: form.is_trending ? 'var(--gold)' : 'var(--border-strong)',
+                                        position: 'relative',
+                                        transition: 'background 0.25s ease',
+                                        flexShrink: 0,
+                                    }}>
+                                        <span style={{
+                                            position: 'absolute',
+                                            top: '3px',
+                                            left: form.is_trending ? '19px' : '3px',
+                                            width: '14px',
+                                            height: '14px',
+                                            borderRadius: '50%',
+                                            background: '#fff',
+                                            transition: 'left 0.25s ease',
+                                        }} />
+                                    </span>
+                                    {form.is_trending ? '⭐ Trending ON' : 'Trending OFF'}
+                                </button>
                             </div>
                             <div className="admin-modal__actions">
                                 <button type="button" className="btn btn-ghost" onClick={closeModal}>Cancel</button>
@@ -196,6 +275,70 @@ function ManageMovies() {
                     </div>
                 </div>
             )}
+
+            {/* Bulk Import Modal */}
+            {bulkModal && (
+                <div className="admin-modal-overlay" onClick={e => e.target === e.currentTarget && setBulkModal(false)}>
+                    <div className="admin-modal" style={{ maxWidth: '560px' }}>
+                        <div className="admin-modal__header">
+                            <h2>📥 Bulk Import from TMDb</h2>
+                            <button className="admin-modal__close" onClick={() => setBulkModal(false)}>✕</button>
+                        </div>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginBottom: '12px' }}>
+                            Enter one movie title per line (max 20). Existing movies are automatically skipped.
+                        </p>
+                        <textarea
+                            rows={8}
+                            style={{ width: '100%', resize: 'vertical', fontFamily: 'monospace', fontSize: '0.9rem' }}
+                            placeholder={'Inception\nInterstellar\nOppenheimer\nDune'}
+                            value={bulkTitles}
+                            onChange={e => setBulkTitles(e.target.value)}
+                        />
+                        <div className="admin-modal__actions" style={{ marginTop: '16px' }}>
+                            <button className="btn btn-ghost" onClick={() => setBulkModal(false)}>Cancel</button>
+                            <button className="btn btn-primary" onClick={handleBulkImport} disabled={bulkLoading}>
+                                {bulkLoading ? '⏳ Importing…' : '✨ Import All'}
+                            </button>
+                        </div>
+                        {bulkResult && (
+                            <div style={{ marginTop: '20px', fontSize: '0.875rem' }}>
+                                <p style={{ color: 'var(--success)', fontWeight: 600, marginBottom: '8px' }}>
+                                    {bulkResult.message}
+                                </p>
+                                {bulkResult.imported.length > 0 && (
+                                    <div style={{ marginBottom: '6px' }}>
+                                        <strong style={{ color: 'var(--success)' }}>✅ Imported:</strong>
+                                        <ul style={{ margin: '4px 0 0 16px' }}>{bulkResult.imported.map(t => <li key={t}>{t}</li>)}</ul>
+                                    </div>
+                                )}
+                                {bulkResult.skipped.length > 0 && (
+                                    <div style={{ marginBottom: '6px' }}>
+                                        <strong style={{ color: 'var(--gold)' }}>⏭️ Skipped:</strong>
+                                        <ul style={{ margin: '4px 0 0 16px' }}>{bulkResult.skipped.map(s => <li key={s.title}>{s.title} — {s.reason}</li>)}</ul>
+                                    </div>
+                                )}
+                                {bulkResult.failed.length > 0 && (
+                                    <div>
+                                        <strong style={{ color: 'var(--error)' }}>❌ Failed:</strong>
+                                        <ul style={{ margin: '4px 0 0 16px' }}>{bulkResult.failed.map(f => <li key={f.title}>{f.title} — {f.reason}</li>)}</ul>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirm Modal */}
+            <ConfirmModal
+                isOpen={!!confirmTarget}
+                title={`Delete "${confirmTarget?.title}"?`}
+                message="This action cannot be undone. The movie will be permanently removed."
+                confirmLabel="Yes, Delete"
+                danger
+                onCancel={() => setConfirmTarget(null)}
+                onConfirm={confirmDelete}
+            />
         </div>
     );
 }

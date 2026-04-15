@@ -1,0 +1,200 @@
+/* ── SUPPORT PAGE ─────────────────────────────────────────────────────── */
+
+/* Hero */
+.support-hero {
+  background: linear-gradient(135deg, rgba(168,85,247,0.18) 0%, rgba(236,72,153,0.1) 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 64px 0 48px;
+  text-align: center;
+}
+
+.support-hero__icon {
+  font-size: 3.5rem;
+  margin-bottom: 16px;
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.support-hero__title {
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 800;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 12px;
+}
+
+.support-hero__sub {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* Body */
+.support-body {
+  padding: 48px var(--space-lg);
+}
+
+/* Quick Links */
+.support-quick {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 56px;
+}
+
+.support-quick__card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: var(--transition);
+  cursor: default;
+}
+a.support-quick__card { cursor: pointer; }
+.support-quick__card:hover {
+  border-color: var(--primary);
+  background: var(--primary-dim);
+  transform: translateY(-2px);
+}
+
+.support-quick__icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+.support-quick__card strong {
+  display: block;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 2px;
+}
+.support-quick__card p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* FAQ */
+.support-faq__heading {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 32px;
+  color: var(--text-primary);
+}
+
+.support-faq__category {
+  margin-bottom: 40px;
+}
+
+.support-faq__cat-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.support-faq__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.support-faq__item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: var(--transition);
+}
+.support-faq__item--open {
+  border-color: rgba(168,85,247,0.35);
+  background: var(--primary-dim);
+}
+
+.support-faq__q {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.support-faq__q:hover { color: var(--primary); }
+
+.support-faq__chevron {
+  font-size: 0.7rem;
+  color: var(--primary);
+  flex-shrink: 0;
+  transition: var(--transition);
+}
+
+.support-faq__a {
+  padding: 0 20px 18px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  animation: fadeDown 0.2s ease;
+}
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Contact Form */
+.support-contact {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  margin-top: 48px;
+}
+
+.support-contact__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.support-contact__sub {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+}
+
+.support-contact__form .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.support-contact__form textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+@media (max-width: 768px) {
+  .support-contact {
+    padding: 24px 20px;
+  }
+  .support-contact__form .form-row {
+    grid-template-columns: 1fr;
+  }
+}

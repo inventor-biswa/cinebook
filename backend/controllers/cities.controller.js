@@ -7,7 +7,10 @@ const pool = require('../config/db');
 exports.getAllCities = async (req, res) => {
     try {
         const [cities] = await pool.query(
-            'SELECT city_id, name FROM cities ORDER BY name ASC'
+            `SELECT MIN(city_id) AS city_id, name 
+             FROM cities 
+             GROUP BY name 
+             ORDER BY name ASC`
         );
         res.json(cities);
     } catch (error) {

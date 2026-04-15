@@ -46,7 +46,9 @@ function Register() {
             {/* Left panel — branding */}
             <div className="auth-panel auth-panel--brand">
                 <div className="auth-brand">
-                    <h1 className="auth-brand__logo">🎬 <span>Cine</span>Book</h1>
+                    <h1 className="auth-brand__logo">
+                        <span style={{ color: 'var(--primary)' }}>Qwik</span>Show
+                    </h1>
                     <p className="auth-brand__tagline">Book seats. Experience magic.</p>
                     <ul className="auth-brand__features">
                         <li>🎟️ Instant seat booking</li>
@@ -62,7 +64,7 @@ function Register() {
                 <div className="auth-form-wrap">
                     <div className="auth-form__header">
                         <h2>Create account</h2>
-                        <p>Join CineBook and start booking!</p>
+                        <p>Join QwikShow and start booking!</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="auth-form">

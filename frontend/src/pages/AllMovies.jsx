@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import API from '../api/axios';
 import { useCity } from '../context/CityContext';
 import Layout from '../components/Layout';
@@ -7,6 +8,9 @@ import './Listing.css';
 
 function AllMovies() {
     const { selectedCity } = useCity();
+    const [searchParams] = useSearchParams();
+    const statusFilter = searchParams.get('status');
+
     const [movies, setMovies] = useState([]);
     const [filtered, setFiltered] = useState([]);
     const [search, setSearch] = useState('');
@@ -15,25 +19,36 @@ function AllMovies() {
 
     useEffect(() => {
         setLoading(true);
-        API.get(`/movies?city_id=${selectedCity.city_id}`)
+        // coming_soon: status filter only. Default: show ALL movies (no city restriction)
+        const url = statusFilter
+            ? `/movies?status=${statusFilter}`
+            : `/movies`;
+
+        API.get(url)
             .then(res => { setMovies(res.data); setFiltered(res.data); })
             .catch(() => { })
             .finally(() => setLoading(false));
-    }, [selectedCity]);
+    }, [statusFilter]);
 
     useEffect(() => {
         let result = movies;
         if (search) result = result.filter(m => m.title.toLowerCase().includes(search.toLowerCase()));
-        if (genre !== 'All') result = result.filter(m => m.genre === genre);
+        if (genre !== 'All') result = result.filter(m => m.genre?.split(',').map(g => g.trim()).includes(genre));
         setFiltered(result);
     }, [search, genre, movies]);
 
-    const genres = ['All', ...new Set(movies.map(m => m.genre).filter(Boolean))];
+    const genres = ['All', ...[...new Set(
+        movies.flatMap(m => (m.genre || '').split(',').map(g => g.trim()).filter(Boolean))
+    )].sort()];
+
+    const pageTitle = statusFilter === 'coming_soon'
+        ? '🔜 Coming Soon'
+        : '🎦 All Movies';
 
     return (
         <Layout>
             <div className="container section">
-                <h1 className="section-title">Movies in {selectedCity.name}</h1>
+                <h1 className="section-title">{pageTitle}</h1>
 
                 {/* Filters */}
                 <div className="listing__filters">

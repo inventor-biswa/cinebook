@@ -12,15 +12,18 @@ function AdminLayout() {
         { to: '/admin', label: '📊 Dashboard', end: true },
         { to: '/admin/movies', label: '🎬 Movies' },
         { to: '/admin/events', label: '🎤 Events' },
-        { to: '/admin/theatres', label: '🏟️ Theatres' },
+        { to: '/admin/theatres', label: '🏙️ Theatres' },
         { to: '/admin/shows', label: '📅 Shows' },
+        { to: '/admin/offers', label: '🎁 Offers' },
     ];
 
     return (
         <div className="admin-layout">
             {/* Sidebar */}
             <aside className="admin-sidebar">
-                <Link to="/" className="admin-sidebar__logo">🎬 <span>Cine</span>Book</Link>
+                <Link to="/" className="admin-sidebar__logo">
+                    <span style={{ color: 'var(--primary)' }}>Qwik</span>Show
+                </Link>
                 <p className="admin-sidebar__role">Admin Panel</p>
 
                 <nav className="admin-sidebar__nav">

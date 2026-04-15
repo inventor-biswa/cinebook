@@ -12,7 +12,12 @@ import AllMovies from './pages/AllMovies';
 import MovieDetail from './pages/MovieDetail';
 import AllEvents from './pages/AllEvents';
 import EventDetail from './pages/EventDetail';
+import OffersPage from './pages/OffersPage';
 import NotFound from './pages/NotFound';
+import SupportPage from './pages/SupportPage';
+
+// Chatbot
+import ChatBot from './components/ChatBot';
 
 // Auth Pages
 import Login from './pages/Login';
@@ -30,6 +35,7 @@ import ManageMovies from './pages/admin/ManageMovies';
 import ManageEvents from './pages/admin/ManageEvents';
 import ManageTheatres from './pages/admin/ManageTheatres';
 import ManageShows from './pages/admin/ManageShows';
+import ManageOffers from './pages/admin/ManageOffers';
 
 function App() {
   return (
@@ -40,6 +46,9 @@ function App() {
           {/* Global toast notification system */}
           <Toaster position="top-center" />
 
+          {/* Global Chatbot Widget */}
+          <ChatBot />
+
           <Routes>
             {/* ── Public Routes ── */}
             <Route path="/" element={<Home />} />
@@ -47,6 +56,8 @@ function App() {
             <Route path="/movies/:id" element={<MovieDetail />} />
             <Route path="/events" element={<AllEvents />} />
             <Route path="/events/:id" element={<EventDetail />} />
+            <Route path="/offers" element={<OffersPage />} />
+            <Route path="/support" element={<SupportPage />} />
 
             {/* ── Auth Routes ── */}
             <Route path="/login" element={<Login />} />
@@ -72,6 +83,7 @@ function App() {
               <Route path="events" element={<ManageEvents />} />
               <Route path="theatres" element={<ManageTheatres />} />
               <Route path="shows" element={<ManageShows />} />
+              <Route path="offers" element={<ManageOffers />} />
             </Route>
 
             {/* ── 404 ── */}

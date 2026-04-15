@@ -1,9 +1,14 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import API from '../../api/axios';
+import ConfirmModal from '../../components/ConfirmModal';
 import './Admin.css';
 
 const EMPTY = { title: '', category: '', description: '', poster_url: '', trailer_url: '' };
+
+const EVENT_CATEGORIES = [
+    'Music', 'Comedy', 'Sport', 'Theater', 'Concerts', 'Art', 'Stand-up', 'Other'
+];
 
 function ManageEvents() {
     const [events, setEvents] = useState([]);
@@ -11,6 +16,7 @@ function ManageEvents() {
     const [editing, setEditing] = useState(null);
     const [form, setForm] = useState(EMPTY);
     const [loading, setLoading] = useState(false);
+    const [confirmTarget, setConfirmTarget] = useState(null);
 
     const fetchEvents = () => API.get('/admin/events').then(r => setEvents(r.data)).catch(() => { });
     useEffect(() => { fetchEvents(); }, []);
@@ -32,10 +38,12 @@ function ManageEvents() {
         finally { setLoading(false); }
     };
 
-    const handleDelete = async (id, title) => {
-        if (!window.confirm(`Delete "${title}"?`)) return;
+    const handleDelete = (id, title) => setConfirmTarget({ id, title });
+    const confirmDelete = async () => {
+        const { id } = confirmTarget;
+        setConfirmTarget(null);
         try { await API.delete(`/admin/events/${id}`); toast.success('Event deleted.'); setEvents(p => p.filter(e => e.event_id !== id)); }
-        catch { toast.error('Delete failed.'); }
+        catch (err) { toast.error(err.response?.data?.message || 'Delete failed.'); }
     };
 
     return (
@@ -72,17 +80,29 @@ function ManageEvents() {
                             <button className="admin-modal__close" onClick={closeModal}>✕</button>
                         </div>
                         <form onSubmit={handleSubmit}>
-                            {[
-                                { name: 'title', label: 'Title *', type: 'text' },
-                                { name: 'category', label: 'Category (Music/Comedy/Sport)', type: 'text' },
-                                { name: 'poster_url', label: 'Poster URL', type: 'url' },
-                                { name: 'trailer_url', label: 'Promo URL', type: 'url' },
-                            ].map(f => (
-                                <div className="form-group" key={f.name}>
-                                    <label>{f.label}</label>
-                                    <input name={f.name} type={f.type} value={form[f.name] || ''} onChange={handleChange} />
-                                </div>
-                            ))}
+                             <div className="form-group">
+                                <label>Title *</label>
+                                <input name="title" type="text" value={form.title || ''} onChange={handleChange} />
+                            </div>
+                            <div className="form-group">
+                                <label>Category</label>
+                                <select name="category" value={form.category || ''} onChange={handleChange}>
+                                    <option value="">— Select category —</option>
+                                    {EVENT_CATEGORIES.map(c => (
+                                        <option key={c} value={c}>{c}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label>Poster URL</label>
+                                <input name="poster_url" type="url" value={form.poster_url || ''} onChange={handleChange} placeholder="https://res.cloudinary.com/..." />
+                                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>💡 Use <a href="https://cloudinary.com" target="_blank" rel="noreferrer" style={{ color: 'var(--primary)' }}>Cloudinary</a> for reliable image hosting (free)</span>
+                            </div>
+                            <div className="form-group">
+                                <label>Promo / Trailer URL</label>
+                                <input name="trailer_url" type="url" value={form.trailer_url || ''} onChange={handleChange} placeholder="https://youtu.be/..." />
+                                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>💡 YouTube or Cloudinary video URL</span>
+                            </div>
                             <div className="form-group">
                                 <label>Description</label>
                                 <textarea name="description" rows={3} value={form.description || ''} onChange={handleChange} style={{ width: '100%', resize: 'vertical' }} />
@@ -95,6 +115,15 @@ function ManageEvents() {
                     </div>
                 </div>
             )}
+            <ConfirmModal
+                isOpen={!!confirmTarget}
+                title={`Delete "${confirmTarget?.title}"?`}
+                message="This event will be permanently removed."
+                confirmLabel="Yes, Delete"
+                danger
+                onCancel={() => setConfirmTarget(null)}
+                onConfirm={confirmDelete}
+            />
         </div>
     );
 }

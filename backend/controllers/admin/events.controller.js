@@ -61,26 +61,48 @@ exports.updateEvent = async (req, res) => {
     }
 };
 
-// ─── ADMIN: DELETE EVENT ─────────────────────────────────────────────────────
+// ─── ADMIN: DELETE EVENT ────────────────────────────────────────────────
 // DELETE /api/admin/events/:id
 exports.deleteEvent = async (req, res) => {
+    const connection = await pool.getConnection();
     try {
         const { id } = req.params;
+        await connection.beginTransaction();
 
-        // Attempt deletion
-        const [result] = await pool.query('DELETE FROM events WHERE event_id = ?', [id]);
+        // 1. Find all shows linked to this event
+        const [shows] = await connection.query(
+            'SELECT show_id FROM shows WHERE event_id = ?', [id]
+        );
+        const showIds = shows.map(s => s.show_id);
+
+        if (showIds.length > 0) {
+            // 2. Delete booking_seats for all bookings of these shows
+            await connection.query(
+                `DELETE bs FROM booking_seats bs
+                 JOIN bookings b ON bs.booking_id = b.booking_id
+                 WHERE b.show_id IN (?)`, [showIds]
+            );
+            // 3. Delete bookings for these shows
+            await connection.query('DELETE FROM bookings WHERE show_id IN (?)', [showIds]);
+            // 4. Delete seats for these shows
+            await connection.query('DELETE FROM seats WHERE show_id IN (?)', [showIds]);
+            // 5. Delete the shows
+            await connection.query('DELETE FROM shows WHERE event_id = ?', [id]);
+        }
+
+        // 6. Delete the event
+        const [result] = await connection.query('DELETE FROM events WHERE event_id = ?', [id]);
+        await connection.commit();
 
         if (result.affectedRows === 0) {
             return res.status(404).json({ message: 'Event not found.' });
         }
-
-        res.json({ message: 'Event deleted successfully.' });
+        res.json({ message: 'Event and its associated shows deleted successfully.' });
     } catch (error) {
+        await connection.rollback();
         console.error('Admin deleteEvent error:', error);
-        // 1451 is the MySQL error code for foreign key constraint failure
-        if (error.errno === 1451) {
-            return res.status(400).json({ message: 'Cannot delete event because it has associated shows.' });
-        }
         res.status(500).json({ message: 'Server error deleting event.' });
+    } finally {
+        connection.release();
     }
 };

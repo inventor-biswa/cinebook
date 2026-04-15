@@ -6,7 +6,9 @@ function Footer() {
         <footer className="footer">
             <div className="container footer__inner">
                 <div className="footer__brand">
-                    <p className="footer__logo">🎬 <span>Cine</span>Book</p>
+                    <p className="footer__logo">
+                        <span style={{ color: 'var(--primary)' }}>Qwik</span>Show
+                    </p>
                     <p className="footer__tagline">Your ultimate movie & event booking platform.</p>
                 </div>
 
@@ -15,6 +17,7 @@ function Footer() {
                         <h4>Explore</h4>
                         <Link to="/movies">Movies</Link>
                         <Link to="/events">Events</Link>
+                        <Link to="/support">Support</Link>
                     </div>
                     <div>
                         <h4>Account</h4>
@@ -25,7 +28,7 @@ function Footer() {
                 </div>
             </div>
             <div className="footer__bottom">
-                <p>© {new Date().getFullYear()} CineBook. All rights reserved.</p>
+                <p>© {new Date().getFullYear()} QwikShow. All rights reserved.</p>
             </div>
         </footer>
     );

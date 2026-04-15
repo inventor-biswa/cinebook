@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import API from '../../api/axios';
+import ConfirmModal from '../../components/ConfirmModal';
 import './Admin.css';
 import './ManageShows.css';
 
@@ -14,6 +15,7 @@ function ManageShows() {
     const [theatres, setTheatres] = useState([]);
     const [modal, setModal] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [confirmTarget, setConfirmTarget] = useState(null);
 
     // Shared fields
     const [showType, setShowType] = useState('movie');
@@ -101,13 +103,12 @@ function ManageShows() {
         fetchData();
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm('Delete this show? All seat data will be removed.')) return;
-        try {
-            await API.delete(`/admin/shows/${id}`);
-            toast.success('Show deleted.');
-            setShows(p => p.filter(s => s.show_id !== id));
-        } catch { toast.error('Delete failed.'); }
+    const handleDelete = (id) => setConfirmTarget({ id });
+    const confirmDelete = async () => {
+        const { id } = confirmTarget;
+        setConfirmTarget(null);
+        try { await API.delete(`/admin/shows/${id}`); toast.success('Show deleted.'); setShows(p => p.filter(s => s.show_id !== id)); }
+        catch (err) { toast.error(err.response?.data?.message || 'Delete failed.'); }
     };
 
     const contentOptions = showType === 'movie' ? movies : events;
@@ -261,6 +262,15 @@ function ManageShows() {
                     </div>
                 </div>
             )}
+            <ConfirmModal
+                isOpen={!!confirmTarget}
+                title="Delete this show?"
+                message="All seat reservation data for this show will be permanently removed."
+                confirmLabel="Yes, Delete"
+                danger
+                onCancel={() => setConfirmTarget(null)}
+                onConfirm={confirmDelete}
+            />
         </div>
     );
 }

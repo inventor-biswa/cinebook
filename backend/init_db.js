@@ -1,4 +1,5 @@
-const pool = require('./config/db');
+const pool   = require('./config/db');
+const bcrypt = require('bcrypt');
 
 async function createTables() {
     try {
@@ -12,6 +13,7 @@ async function createTables() {
         email VARCHAR(100) UNIQUE NOT NULL,
         password_hash VARCHAR(255) NOT NULL,
         role ENUM('user','admin') DEFAULT 'user',
+        reward_points INT DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
@@ -29,7 +31,8 @@ async function createTables() {
         // Insert Default Cities (Ignores duplicates if they already exist)
         await pool.query(`
       INSERT IGNORE INTO cities (name) VALUES 
-      ('Mumbai'), ('Delhi'), ('Bangalore'), ('Hyderabad'), ('Chennai')
+      ('Mumbai'), ('Delhi'), ('Bangalore'), ('Hyderabad'), ('Chennai'),
+      ('Bhubaneswar'), ('Cuttack'), ('Puri'), ('Rourkela'), ('Kolkata')
     `);
 
         // 3. Theatres Table
@@ -114,6 +117,7 @@ async function createTables() {
         await pool.query(`
       CREATE TABLE IF NOT EXISTS bookings (
         booking_id INT PRIMARY KEY AUTO_INCREMENT,
+        booking_ref VARCHAR(30) UNIQUE,
         user_id INT NOT NULL,
         show_id INT NOT NULL,
         total_amount DECIMAL(10,2) NOT NULL,
@@ -137,6 +141,61 @@ async function createTables() {
       )
     `);
         console.log("Booking_seats junction table created.");
+
+        // 10. Offers Table
+        await pool.query(`
+      CREATE TABLE IF NOT EXISTS offers (
+        offer_id INT PRIMARY KEY AUTO_INCREMENT,
+        code VARCHAR(50) UNIQUE NOT NULL,
+        title VARCHAR(200),
+        description TEXT,
+        discount_type ENUM('percent','flat') NOT NULL,
+        discount_value DECIMAL(8,2) NOT NULL,
+        min_amount DECIMAL(8,2) DEFAULT 0,
+        max_uses INT DEFAULT 100,
+        used_count INT DEFAULT 0,
+        expiry_date DATE,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+        console.log("Offers table created.");
+
+        // Insert sample offers
+        await pool.query(`
+      INSERT IGNORE INTO offers (code, title, description, discount_type, discount_value, min_amount, max_uses, expiry_date) VALUES
+      ('FIRST50', 'First Booking 50% Off', 'Get 50% off on your first booking!', 'percent', 50.00, 100.00, 50, DATE_ADD(CURDATE(), INTERVAL 90 DAY)),
+      ('MOVIE100', 'Flat ₹100 Off', 'Flat ₹100 discount on any booking above ₹300', 'flat', 100.00, 300.00, 200, DATE_ADD(CURDATE(), INTERVAL 60 DAY)),
+      ('WEEKEND20', 'Weekend Special 20%', '20% off on weekend shows', 'percent', 20.00, 0.00, 500, DATE_ADD(CURDATE(), INTERVAL 30 DAY))
+    `);
+
+        // 11. OTP Tokens Table (passwordless login)
+        await pool.query(`
+      CREATE TABLE IF NOT EXISTS otp_tokens (
+        id         INT PRIMARY KEY AUTO_INCREMENT,
+        email      VARCHAR(255) NOT NULL,
+        otp        VARCHAR(6) NOT NULL,
+        expires_at DATETIME NOT NULL,
+        used       TINYINT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+        console.log("OTP tokens table created.");
+
+        // ─── SEED: Admin User ─────────────────────────────────────────────────────
+        const [existingAdmin] = await pool.query(
+            "SELECT user_id FROM users WHERE email = ?", ['admin@qwikshow.com']
+        );
+        if (existingAdmin.length === 0) {
+            const hash = await bcrypt.hash('admin123', 10);
+            await pool.query(
+                "INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, 'admin')",
+                ['Admin', 'admin@qwikshow.com', hash]
+            );
+            console.log("Admin user seeded → admin@qwikshow.com / admin123");
+        } else {
+            console.log("Admin user already exists — skipping seed.");
+        }
 
         console.log("====================================");
         console.log("Database initialized successfully!");

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import API from '../../api/axios';
+import ConfirmModal from '../../components/ConfirmModal';
 import './Admin.css';
 
 const EMPTY = { name: '', city_id: '', total_seats: 100, address: '' };
@@ -12,6 +13,7 @@ function ManageTheatres() {
     const [editing, setEditing] = useState(null);
     const [form, setForm] = useState(EMPTY);
     const [loading, setLoading] = useState(false);
+    const [confirmTarget, setConfirmTarget] = useState(null);
 
     const fetchData = () => Promise.all([
         API.get('/admin/theatres').then(r => setTheatres(r.data)),
@@ -37,10 +39,12 @@ function ManageTheatres() {
         finally { setLoading(false); }
     };
 
-    const handleDelete = async (id, name) => {
-        if (!window.confirm(`Delete "${name}"?`)) return;
+    const handleDelete = (id, name) => setConfirmTarget({ id, name });
+    const confirmDelete = async () => {
+        const { id } = confirmTarget;
+        setConfirmTarget(null);
         try { await API.delete(`/admin/theatres/${id}`); toast.success('Theatre deleted.'); setTheatres(p => p.filter(t => t.theatre_id !== id)); }
-        catch { toast.error('Delete failed — may have active shows.'); }
+        catch (err) { toast.error(err.response?.data?.message || 'Delete failed — may have active shows.'); }
     };
 
     return (
@@ -97,6 +101,15 @@ function ManageTheatres() {
                     </div>
                 </div>
             )}
+            <ConfirmModal
+                isOpen={!!confirmTarget}
+                title={`Delete "${confirmTarget?.name}"?`}
+                message="This theatre will be permanently removed. This will fail if it has active shows."
+                confirmLabel="Yes, Delete"
+                danger
+                onCancel={() => setConfirmTarget(null)}
+                onConfirm={confirmDelete}
+            />
         </div>
     );
 }
