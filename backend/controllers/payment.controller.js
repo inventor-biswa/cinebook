@@ -103,7 +103,19 @@ exports.verifyPayment = async (req, res) => {
             return res.status(400).json({ message: 'Failed to confirm booking. It may already be processed or invalid.' });
         }
 
-        res.json({ message: 'Payment verified successfully. Booking confirmed!' });
+        // 3. Fetch booking_ref and points_earned to return to the frontend
+        //    (points_earned is calculated as Math.floor(total_amount) — same logic as createBooking)
+        const [confirmedRows] = await pool.query(
+            'SELECT booking_ref, total_amount FROM bookings WHERE booking_id = ?',
+            [booking_id]
+        );
+        const confirmedBooking = confirmedRows[0] || {};
+
+        res.json({
+            message: 'Payment verified successfully. Booking confirmed!',
+            booking_ref: confirmedBooking.booking_ref,
+            points_earned: Math.floor(confirmedBooking.total_amount || 0),
+        });
 
     } catch (error) {
         console.error('verifyPayment error:', error);

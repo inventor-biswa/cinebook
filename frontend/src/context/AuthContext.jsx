@@ -34,8 +34,17 @@ export function AuthProvider({ children }) {
         localStorage.removeItem('token');
     };
 
+    // Partially update user fields (e.g. reward_points after a booking)
+    const updateUser = (fields) => {
+        setUser(prev => {
+            const updated = { ...prev, ...fields };
+            localStorage.setItem('user', JSON.stringify(updated));
+            return updated;
+        });
+    };
+
     return (
-        <AuthContext.Provider value={{ user, token, login, logout }}>
+        <AuthContext.Provider value={{ user, token, login, logout, updateUser }}>
             {children}
         </AuthContext.Provider>
     );

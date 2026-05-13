@@ -6,7 +6,7 @@ const pool = require('../config/db');
 // Requires Auth
 
 exports.createBooking = async (req, res) => {
-    const { show_id, seat_ids } = req.body;
+    const { show_id, seat_ids, discount_amount } = req.body;
     const user_id = req.user.user_id; // From auth.js middleware
 
     if (!show_id || !seat_ids || seat_ids.length === 0) {
@@ -33,7 +33,9 @@ exports.createBooking = async (req, res) => {
         }
 
         const show = shows[0];
-        const totalAmount = show.price * seat_ids.length;
+        const rawAmount = show.price * seat_ids.length;
+        // Apply coupon discount if provided (validated earlier by /offers/validate)
+        const totalAmount = discount_amount ? Math.max(0, rawAmount - Number(discount_amount)) : rawAmount;
 
         if (show.available_seats < seat_ids.length) {
             throw new Error('Not enough available seats left for this show.');

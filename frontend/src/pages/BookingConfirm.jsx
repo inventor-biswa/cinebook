@@ -3,11 +3,14 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import API from '../api/axios';
 import Layout from '../components/Layout';
+import { useAuth } from '../context/AuthContext';
+import qrImage from '../assets/qr.png';
 import './BookingConfirm.css';
 
 function BookingConfirm() {
     const { state } = useLocation();
     const navigate = useNavigate();
+    const { user, updateUser } = useAuth();
     const [booking, setBooking] = useState(null);
     const [step, setStep] = useState('summary');  // 'summary' | 'paying' | 'success'
     const [loading, setLoading] = useState(false);
@@ -68,7 +71,9 @@ function BookingConfirm() {
             const res = await API.post('/bookings', payload);
             setBooking(res.data);
             setStep('paying');
-            startRazorpay(res.data.booking_id, res.data.total_amount);
+            // Use `finalAmount` (already discount-applied on frontend) as the display amount.
+            // The Razorpay order on the backend is also created from the discounted DB value.
+            startRazorpay(res.data.booking_id, finalAmount);
         } catch (err) {
             toast.error(err.response?.data?.message || 'Could not create booking.');
             setLoading(false);
@@ -97,9 +102,16 @@ function BookingConfirm() {
                             razorpay_signature: response.razorpay_signature,
                             booking_id: bookingId,
                         });
-                        setBooking(prev => ({ ...prev, ...verifyRes.data }));
+                        const confirmedBooking = { ...verifyRes.data };
+                        setBooking(prev => ({ ...prev, ...confirmedBooking }));
                         setStep('success');
                         toast.success('🎉 Booking Confirmed!');
+                        // ── Live-refresh reward points in navbar ──────────────
+                        if (confirmedBooking.points_earned > 0) {
+                            updateUser({
+                                reward_points: (user?.reward_points || 0) + confirmedBooking.points_earned
+                            });
+                        }
                     } catch {
                         toast.error('Payment verification failed. Contact support.');
                         navigate('/my-bookings');
@@ -161,6 +173,13 @@ function BookingConfirm() {
                             <span key={s.seat_id} className="badge badge-green">{s.seat_label}</span>
                         ))}
                     </div>
+
+                    {/* ── QR Code ── */}
+                    <div className="booking-success__qr">
+                        <p className="booking-success__qr-label">Scan at the entrance</p>
+                        <img src={qrImage} alt="Entry QR Code" className="booking-success__qr-img" />
+                    </div>
+
                     <div className="booking-success__actions">
                         <button className="btn btn-primary btn-lg" onClick={() => navigate('/my-bookings')}>
                             View My Bookings

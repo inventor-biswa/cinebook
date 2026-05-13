@@ -4,14 +4,15 @@ import './ChatBot.css';
 /* ── Rule-based responses (no API needed) ─────────────────────────────── */
 const RULES = [
   {
+    // ⚠️ Must be FIRST — "cancel booking" would otherwise match the booking rule
+    keywords: ['cancel', 'refund', 'cancelation', 'cancellation', 'cancel booking', 'money back', 'return ticket'],
+    answer:
+      '❌ **Cancellation Policy:**\n• Cancellations are handled by our support team.\n• Email **support@qwikshow.in** with your **Booking Ref** (e.g. QS-20260403-0012)\n• Refunds are processed within **5–7 business days**\n• Cancellations accepted up to **2 hours before show time**',
+  },
+  {
     keywords: ['book', 'booking', 'ticket', 'reserve', 'seat'],
     answer:
       '🎟️ To book a ticket:\n1. Go to Movies or Events\n2. Click a title you like\n3. Pick a show time\n4. Select seats\n5. Pay via Razorpay\n\nYour confirmation email arrives instantly!',
-  },
-  {
-    keywords: ['cancel', 'refund', 'cancelation'],
-    answer:
-      '❌ Cancellations are handled by our support team.\nEmail us at **support@qwikshow.in** with your **Booking Reference** (e.g. QS-20260403-0012) and we\'ll process it within 24 hours.',
   },
   {
     keywords: ['payment', 'pay', 'razorpay', 'upi', 'card', 'failed', 'deducted', 'charge'],

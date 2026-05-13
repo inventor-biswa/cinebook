@@ -61,7 +61,7 @@ exports.login = async (req, res) => {
 
         // 2. Find the user by email
         const [rows] = await pool.query(
-            'SELECT user_id, name, email, password_hash, role FROM users WHERE email = ?',
+            'SELECT user_id, name, email, password_hash, role, reward_points FROM users WHERE email = ?',
             [email]
         );
 
@@ -94,7 +94,8 @@ exports.login = async (req, res) => {
                 user_id: user.user_id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                reward_points: user.reward_points || 0
             }
         });
 
